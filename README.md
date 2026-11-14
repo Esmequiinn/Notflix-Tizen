@@ -27,6 +27,10 @@ Your Nuvio account, profiles, addons, Trakt and Simkl connections work exactly a
 
 The package keeps the official Nuvio TV app id, so it installs over an existing Nuvio TV app and keeps your login.
 
+## Updates
+
+The app checks this repository's releases instead of the official Nuvio releases. When a newer release is published (for example `v0.0.2`), the TV shows an update notice. Updates are installed manually with the Nuvio TV Installer.
+
 ## Build from source
 
 ```bash

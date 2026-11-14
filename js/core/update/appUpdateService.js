@@ -1,4 +1,6 @@
-const LATEST_RELEASE_URL = "https://api.github.com/repos/NuvioMedia/NuvioTVSmart/releases/latest";
+const LATEST_RELEASE_URL = "https://api.github.com/repos/Esmequiinn/Notflix-Tizen/releases/latest";
+const DISPLAY_VERSION =
+  typeof __NUVIO_DISPLAY_VERSION__ !== "undefined" ? __NUVIO_DISPLAY_VERSION__ : "";
 const DEFAULT_TIMEOUT_MS = 8000;
 const DEFAULT_RETRY_DELAY_MS = 2000;
 const DEFAULT_MAX_ATTEMPTS = 2;
@@ -112,7 +114,7 @@ export async function getLatestAppUpdate({
     }
 
     const release = parseLatestRelease(await response.json());
-    if (!release || !isRemoteAppVersionNewer(release.tag, currentVersion)) {
+    if (!release || !isRemoteAppVersionNewer(release.tag, DISPLAY_VERSION || currentVersion)) {
       return null;
     }
     return release;
