@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Notflix trailer</title>
+    <style>
+      html,
+      body,
+      #yt {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="yt"></div>
+    <script>
+      (function () {
+        var query = {};
+        String(location.search || "")
+          .replace(/^\?/, "")
+          .split("&")
+          .forEach(function (pair) {
+            var parts = pair.split("=");
+            var key = decodeURIComponent(parts.shift() || "");
+            if (key) query[key] = decodeURIComponent(parts.join("=").replace(/\+/g, " "));
+          });
+        var videoId = query.v || "";
+        var loop = query.loop !== "0";
+        var startVolume = Math.max(
+          0,
+          Math.min(100, Number(query.nfvol == null ? 100 : query.nfvol))
+        );
+        var startMuted = query.muted === "1";
+        var origin = String(location.origin || "");
+        var player = null;
+        var ready = false;
+        var volume = startVolume;
+        var lastPayload = "";
+        var timer = null;
+
+        function call(fn, fallback) {
+          try {
+            return fn();
+          } catch (_) {
+            return fallback;
+          }
+        }
+
+        function post(type, extra) {
+          var payload = { source: "nuvio-youtube-proxy", type: type, videoId: videoId };
+          Object.keys(extra || {}).forEach(function (key) {
+            payload[key] = extra[key];
+          });
+          window.parent.postMessage(payload, "*");
+        }
+
+        function snapshot() {
+          var state = Number(
+            call(function () {
+              return player.getPlayerState();
+            }, -1)
+          );
+          return {
+            playerState: state,
+            ended: state === 0,
+            currentTime: Number(
+              call(function () {
+                return player.getCurrentTime();
+              }, 0) || 0
+            ),
+            duration: Number(
+              call(function () {
+                return player.getDuration();
+              }, 0) || 0
+            ),
+            paused: state !== 1,
+            muted: Boolean(
+              call(function () {
+                return player.isMuted();
+              }, startMuted)
+            ),
+            volume: volume,
+            captionsEnabled: false,
+            loading: !ready || state === -1 || state === 3,
+            controllable: true,
+            nfVolumeControl: true
+          };
+        }
+
+        function push(force) {
+          var state = snapshot();
+          var serialized = JSON.stringify(state);
+          if (!force && serialized === lastPayload) return;
+          lastPayload = serialized;
+          post("state", { state: state });
+        }
+
+        function applyVolume(next) {
+          volume = Math.max(0, Math.min(100, Number(next) || 0));
+          call(function () {
+            player.setVolume(volume);
+          }, null);
+          push(true);
+        }
+
+        window.addEventListener("message", function (event) {
+          if (event.source !== window.parent) return;
+          var data = event.data;
+          if (!data || typeof data !== "object" || data.source !== "nuvio-detail-trailer") return;
+          if (!ready || !player || data.type !== "command") return;
+          var payload = data.payload && typeof data.payload === "object" ? data.payload : {};
+          var command = String(data.command || "");
+          if (command === "play") player.playVideo();
+          else if (command === "pause") player.pauseVideo();
+          else if (command === "setVolume") applyVolume(payload.volume);
+          else if (command === "setMuted") {
+            if (payload.muted) player.mute();
+            else player.unMute();
+            push(true);
+          } else if (command === "seekTo")
+            player.seekTo(Math.max(0, Number(payload.seconds || 0)), true);
+        });
+
+        window.onYouTubeIframeAPIReady = function () {
+          player = new YT.Player("yt", {
+            videoId: videoId,
+            host: "https://www.youtube.com",
+            playerVars: {
+              autoplay: 1,
+              controls: 0,
+              disablekb: 1,
+              enablejsapi: 1,
+              fs: 0,
+              loop: loop ? 1 : 0,
+              playlist: loop ? videoId : undefined,
+              modestbranding: 1,
+              cc_load_policy: 0,
+              iv_load_policy: 3,
+              origin: origin || undefined,
+              playsinline: 1,
+              rel: 0,
+              widget_referrer: location.href
+            },
+            events: {
+              onReady: function (event) {
+                ready = true;
+                call(function () {
+                  event.target.setVolume(startVolume);
+                }, null);
+                if (startMuted) event.target.mute();
+                else event.target.unMute();
+                event.target.playVideo();
+                post("ready", {});
+                timer = setInterval(function () {
+                  push(false);
+                }, 250);
+                push(true);
+              },
+              onStateChange: function (event) {
+                if (Number(event.data) === 0 && loop) {
+                  event.target.seekTo(0, true);
+                  event.target.playVideo();
+                } else if (Number(event.data) === 0) {
+                  post("ended", {});
+                }
+                push(true);
+              },
+              onError: function (event) {
+                post("error", { code: Number(event && event.data) || 0 });
+              }
+            }
+          });
+        };
+
+        window.addEventListener("beforeunload", function () {
+          if (timer) clearInterval(timer);
+          call(function () {
+            player.destroy();
+          }, null);
+        });
+
+        var script = document.createElement("script");
+        script.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(script);
+      })();
+    </script>
+  </body>
+</html>

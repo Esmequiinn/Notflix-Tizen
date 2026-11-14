@@ -1,0 +1,3719 @@
+@font-face {
+  font-family: "NotflixWordmark";
+  src: url("../assets/fonts/BebasNeue-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "NotflixInter";
+  src: url("../assets/fonts/Inter-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "NotflixInter";
+  src: url("../assets/fonts/Inter-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "NotflixInter";
+  src: url("../assets/fonts/Inter-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "NotflixInter";
+  src: url("../assets/fonts/Inter-700.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+}
+
+html.notflix-ui {
+  --app-font-family: "NotflixInter", "Inter", "Segoe UI", Arial, sans-serif;
+  --legacy-sidebar-rail-width: 0px;
+  --home-sidebar-content-offset: 0px;
+  --notflix-red: #e50914;
+  --nf-bg: #0b0b0d;
+  --nf-surface: #18181d;
+  --nf-text: #f4f4f5;
+  --nf-secondary: #c4c4cc;
+  --nf-divider: #26262c;
+  --notflix-bar-height: 88px;
+  --notflix-gutter: 68px;
+}
+
+html.notflix-ui body {
+  background: var(--nf-bg);
+  font-family: var(--app-font-family);
+}
+
+.notflix-ui .nf-wordmark {
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 44px;
+  width: 125px;
+  background: url("../assets/notflix/notflix-wordmark.svg") no-repeat left center;
+  background-size: contain;
+}
+
+.notflix-ui .nf-wordmark-small {
+  height: 20px;
+  width: 57px;
+}
+
+.notflix-ui .nf-icon {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  flex: 0 0 auto;
+}
+
+.notflix-ui .home-shell::before {
+  display: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar,
+.notflix-ui .home-sidebar.notflix-topbar.expanded,
+.notflix-ui .home-sidebar.notflix-topbar[data-collapsible="true"]:not(.expanded) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  height: var(--notflix-bar-height);
+  flex-basis: auto;
+  padding: 8px var(--notflix-gutter);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--nf-bg);
+  z-index: 40;
+  overflow: visible;
+  transition: none;
+  box-sizing: border-box;
+}
+
+.notflix-ui .home-shell .home-sidebar.notflix-topbar {
+  background: linear-gradient(180deg, rgba(11, 11, 13, 0.84) 0%, rgba(11, 11, 13, 0.05) 100%);
+}
+
+.notflix-ui .home-shell.nf-scrolled .home-sidebar.notflix-topbar {
+  background: var(--nf-bg);
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .notflix-wordmark {
+  display: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .nf-wordmark {
+  margin-right: 46px;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-list {
+  flex: 0 1 auto;
+  width: auto;
+  height: var(--notflix-bar-height);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  position: static;
+  top: auto;
+  transform: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item,
+.notflix-ui .home-sidebar.notflix-topbar.content-expanded .home-nav-item,
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.selected,
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.focused {
+  position: relative;
+  width: auto;
+  max-width: 300px;
+  height: auto;
+  margin: 0 10px 0 0;
+  padding: 8px 16px 14px;
+  border: 4px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nf-secondary);
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: 400;
+  justify-content: center;
+  align-self: center;
+  top: 0;
+  transform: none;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.selected,
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.focused {
+  color: var(--nf-text);
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.focused {
+  border-color: var(--nf-text);
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item.selected::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 48px;
+  height: 4px;
+  margin-left: -24px;
+  background: var(--notflix-red);
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-icon-wrap {
+  display: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-label,
+.notflix-ui .home-sidebar.notflix-topbar.content-expanded .home-nav-label {
+  display: inline;
+  position: static;
+  opacity: 1;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-list > * + *,
+.notflix-ui.no-flex-gap .home-sidebar.notflix-topbar .home-nav-list > * + * {
+  margin-top: 0;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-nav-item > * + *,
+.notflix-ui.no-flex-gap .home-sidebar.notflix-topbar.content-expanded .home-nav-item > * + * {
+  margin-left: 0;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-profile-pill,
+.notflix-ui .home-sidebar.notflix-topbar.content-expanded .home-profile-pill {
+  flex: 0 0 auto;
+  position: relative;
+  width: auto;
+  max-width: 260px;
+  height: auto;
+  margin: 0 0 0 auto;
+  align-self: center;
+  top: 0;
+  padding: 8px 16px 14px;
+  border: 4px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  color: var(--nf-secondary);
+  transform: none;
+  box-shadow: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-profile-pill.focused {
+  border-color: var(--nf-text);
+  color: var(--nf-text);
+  background: transparent;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-profile-avatar {
+  display: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-profile-name {
+  display: inline;
+  position: static;
+  opacity: 1;
+  max-width: 220px;
+  width: auto;
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: 400;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: none;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic {
+  --home-content-start: var(--notflix-gutter);
+  --home-track-end: var(--notflix-gutter);
+  --home-row-gap: 14px;
+  --home-poster-radius: 10px;
+  --home-continue-width: var(--nf-cw-w, 496px);
+  --home-continue-height: var(--nf-cw-h, 280px);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-main {
+  background: var(--nf-bg);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero {
+  margin: 0;
+  padding: 0;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-card,
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-card.focused {
+  position: relative;
+  height: 780px;
+  min-height: 780px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  background: var(--nf-bg);
+  transform: none;
+  outline: none;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-backdrop-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-backdrop {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 75%;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(11, 11, 13, 0.92) 0%,
+    rgba(11, 11, 13, 0.6) 37%,
+    rgba(11, 11, 13, 0.08) 77%,
+    rgba(11, 11, 13, 0) 100%
+  );
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-card::after {
+  content: "";
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 11, 13, 0) 0%,
+    rgba(11, 11, 13, 0.75) 67%,
+    var(--nf-bg) 100%
+  );
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-copy,
+.notflix-ui .home-screen-shell.home-layout-classic .home-hero-indicators {
+  display: none;
+}
+
+.notflix-ui .nf-bb {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.notflix-ui .nf-bb-copy {
+  position: absolute;
+  left: var(--notflix-gutter);
+  bottom: 64px;
+  width: 772px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.notflix-ui .nf-bb-copy > * + * {
+  margin-top: 14px;
+}
+
+.notflix-ui .nf-bb-label {
+  display: flex;
+  align-items: center;
+}
+
+.notflix-ui .nf-bb-kind {
+  margin-left: 12px;
+  color: var(--nf-text);
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: 2px;
+}
+
+.notflix-ui .nf-bb-logo {
+  display: block;
+  max-width: 560px;
+  height: 148px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.notflix-ui .nf-bb-title {
+  margin: 0;
+  max-width: 772px;
+  color: var(--nf-text);
+  font-size: 72px;
+  line-height: 80px;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-bb-facts,
+.notflix-ui .nf-bb-genres {
+  display: flex;
+  align-items: center;
+  font-size: 26px;
+  line-height: 34px;
+  color: var(--nf-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.notflix-ui .nf-bb-rating {
+  color: var(--nf-text);
+  margin-right: 14px;
+}
+
+.notflix-ui .nf-bb-desc {
+  margin: 14px 0 0;
+  color: var(--nf-text);
+  font-size: 28px;
+  line-height: 36px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-bb-actions {
+  display: flex;
+  align-items: center;
+}
+
+.notflix-ui .nf-bb-btn {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  padding: 16px 32px;
+  border-radius: 6px;
+  font-size: 28px;
+  line-height: 40px;
+  font-weight: 600;
+  box-shadow: 0 0 0 6px transparent;
+}
+
+.notflix-ui .nf-bb-btn .nf-icon {
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+}
+
+.notflix-ui .nf-bb-primary {
+  background: var(--nf-text);
+  color: var(--nf-bg);
+}
+
+.notflix-ui .nf-bb-secondary {
+  background: var(--nf-surface);
+  color: var(--nf-text);
+}
+
+.notflix-ui .nf-bb-btn.is-selected {
+  outline: 4px solid var(--nf-text);
+  outline-offset: 6px;
+}
+
+.notflix-ui .nf-bb-markers {
+  position: absolute;
+  right: var(--notflix-gutter);
+  bottom: 72px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+
+.notflix-ui .home-hero-card.nf-markers-focused .nf-bb-markers {
+  border-color: var(--nf-text);
+}
+
+.notflix-ui .nf-bb-marker {
+  width: 68px;
+  height: 6px;
+  margin: 21px 5px;
+  background: rgba(196, 196, 204, 0.55);
+}
+
+.notflix-ui .nf-bb-marker.is-active {
+  background: var(--nf-text);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-catalogs {
+  position: relative;
+  z-index: 3;
+  margin-top: -36px;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-row {
+  margin-bottom: 40px;
+}
+
+.notflix-ui .home-screen-shell .home-row-head {
+  margin-bottom: 4px;
+  padding-left: var(--notflix-gutter);
+}
+
+.notflix-ui .home-screen-shell .home-row-title {
+  color: var(--nf-text);
+  font-size: 28px;
+  line-height: 38px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.notflix-ui .home-screen-shell .home-row-subtitle {
+  display: none;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-track {
+  margin-top: 0;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  align-items: flex-start;
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-poster-card:not(.home-collection-card):not(.is-landscape),
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-poster-card.focused:not(.home-collection-card):not(.is-landscape) {
+  flex: 0 0 var(--nf-card-w, 231px);
+  width: var(--nf-card-w, 231px);
+  min-width: var(--nf-card-w, 231px);
+  max-width: var(--nf-card-w, 231px);
+  height: var(--nf-card-h, 622px);
+  position: relative;
+  border: none;
+  border-radius: 10px;
+  transform: none !important;
+  box-shadow: none;
+  background: var(--nf-surface);
+  overflow: hidden;
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-poster-card:not(.home-collection-card):not(.is-landscape)
+  .home-poster-frame,
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-poster-card.focused:not(.home-collection-card):not(.is-landscape)
+  .home-poster-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 10px;
+  box-shadow: none;
+  background: var(--nf-surface);
+  transform: none;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 4px solid transparent;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-card.focused::after {
+  border-color: var(--nf-text);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-copy,
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-expanded-backdrop,
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-expanded-gradient,
+.notflix-ui .home-screen-shell.home-layout-classic .home-poster-expanded-brand {
+  display: none;
+}
+
+.notflix-ui .nf-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+}
+
+.notflix-ui .nf-imdb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--nf-text);
+  font-size: 20px;
+  line-height: 26px;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-imdb-badge b {
+  margin-right: 6px;
+  color: #f5c518;
+  font-weight: 700;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-continue-card,
+.notflix-ui .home-screen-shell.home-layout-classic .home-continue-card.focused {
+  border-radius: 10px;
+  transform: none;
+  box-shadow: none;
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-continue-card.focused
+  .home-continue-media {
+  box-shadow: 0 0 0 4px var(--nf-text);
+  border-radius: 10px;
+}
+
+.notflix-ui .home-screen-shell .home-continue-progress-fill,
+.notflix-ui .home-screen-shell .home-continue-progress-bar {
+  background: var(--notflix-red);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-seeall-card,
+.notflix-ui .home-screen-shell.home-layout-classic .home-seeall-card.focused {
+  height: var(--nf-card-h, 622px);
+  border-radius: 10px;
+}
+
+.notflix-ui .search-screen-shell .search-content,
+.notflix-ui .library-shell .library-main {
+  margin-left: 0;
+  padding-top: var(--notflix-bar-height);
+  box-sizing: border-box;
+}
+
+.notflix-ui .notflix-hidden {
+  display: none;
+}
+
+.notflix-ui .home-screen-shell .home-poster-card {
+  --home-poster-radius: 4px;
+}
+
+.notflix-ui .home-hero-card:not(.focused) .nf-bb-btn.is-selected {
+  outline-color: transparent;
+}
+
+.notflix-ui .home-hero-card:not(.focused) .nf-bb-markers {
+  border-color: transparent;
+}
+
+.notflix-ui .series-detail-shell {
+  background: var(--nf-bg);
+}
+
+.notflix-ui .series-detail-shell .series-detail-content {
+  position: relative;
+}
+
+.notflix-ui .series-detail-shell .series-detail-content::before {
+  content: "";
+  position: absolute;
+  top: 32px;
+  left: var(--notflix-gutter);
+  width: 127px;
+  height: 36px;
+  z-index: 6;
+  background: url("../assets/notflix/notflix-wordmark.svg") no-repeat left center;
+  background-size: contain;
+}
+
+.notflix-ui .series-detail-shell .series-detail-vignette {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(11, 11, 13, 0.94) 0%,
+      rgba(11, 11, 13, 0.7) 30%,
+      rgba(11, 11, 13, 0.1) 62%,
+      rgba(11, 11, 13, 0) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0) 18%,
+      rgba(0, 0, 0, 0) 62%,
+      rgba(11, 11, 13, 0.9) 100%
+    );
+}
+
+.notflix-ui .series-detail-shell .detail-hero-section {
+  padding-left: 96px;
+  padding-top: 40px;
+}
+
+.notflix-ui .series-detail-shell .series-detail-logo {
+  max-width: 760px;
+  max-height: 250px;
+  object-position: left center;
+}
+
+.notflix-ui .series-detail-shell .series-detail-title {
+  font-family: var(--app-font-family);
+  font-size: 64px;
+  line-height: 72px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 1080px;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .detail-meta-stack {
+  order: 1;
+  margin: 24px 0 0;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .nf-detail-cast {
+  order: 2;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .series-detail-support,
+.notflix-ui .series-detail-shell .detail-hero-body > .detail-ratings-row {
+  order: 3;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .series-detail-description {
+  order: 4;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .detail-resume-indicator {
+  order: 5;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-body > .series-detail-actions {
+  order: 6;
+  margin-top: 36px;
+}
+
+.notflix-ui .series-detail-shell .detail-meta-row {
+  color: var(--nf-text);
+  font-size: 30px;
+  line-height: 40px;
+}
+
+.notflix-ui .series-detail-shell .detail-meta-row.secondary,
+.notflix-ui .series-detail-shell .detail-meta-genres {
+  color: var(--nf-secondary);
+  font-size: 28px;
+}
+
+.notflix-ui .series-detail-shell .series-imdb-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.notflix-ui .nf-detail-cast {
+  margin-top: 24px;
+}
+
+.notflix-ui .nf-detail-cast-label {
+  display: block;
+  color: var(--nf-secondary);
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.notflix-ui .nf-detail-cast-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.notflix-ui .nf-detail-cast-chip {
+  margin: 4px 10px 4px 0;
+  padding: 10px 22px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--nf-text);
+  font-size: 27px;
+  line-height: 34px;
+  white-space: nowrap;
+}
+
+.notflix-ui .series-detail-shell .series-detail-support {
+  margin-top: 20px;
+  color: var(--nf-secondary);
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.notflix-ui .series-detail-shell .series-detail-description {
+  margin-top: 24px;
+  max-width: 1120px;
+  color: var(--nf-text);
+  font-size: 32px;
+  line-height: 44px;
+}
+
+.notflix-ui .series-detail-shell .series-primary-btn,
+.notflix-ui .series-detail-shell .series-primary-btn.focused {
+  height: 80px;
+  padding: 0 32px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 28px;
+  font-weight: 600;
+  border: none;
+}
+
+.notflix-ui .series-detail-shell .series-primary-btn.focused,
+.notflix-ui .series-detail-shell .series-secondary-btn.focused {
+  box-shadow: none;
+  outline: 4px solid #ffffff;
+  outline-offset: 4px;
+  transform: none;
+}
+
+.notflix-ui .series-detail-shell .series-secondary-btn {
+  height: 80px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--nf-text);
+  border: none;
+}
+
+.notflix-ui .series-detail-shell .series-circle-btn {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--nf-surface);
+  color: var(--nf-text);
+  border: none;
+}
+
+.notflix-ui .series-detail-shell .series-circle-btn svg {
+  width: 44px;
+  height: 44px;
+}
+
+.notflix-ui .series-detail-shell .series-circle-btn.focused {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #ffffff;
+  transform: none;
+}
+
+.notflix-ui .series-detail-shell .series-season-btn {
+  border-radius: 8px;
+}
+
+.notflix-ui .series-detail-shell .series-season-btn.selected:not(.focused) {
+  background: transparent;
+  color: #ffffff;
+  box-shadow: inset 0 -4px 0 var(--notflix-red);
+}
+
+.notflix-ui .series-detail-shell .series-episode-card,
+.notflix-ui .series-detail-shell .series-episode-thumb,
+.notflix-ui .series-detail-shell .series-episode-image {
+  border-radius: 10px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-progress span {
+  background: var(--notflix-red);
+}
+
+.notflix-ui .series-detail-shell .movie-cast-card {
+  border-radius: 10px;
+}
+
+.notflix-ui .profile-screen,
+.notflix-ui .profile-screen-background {
+  background: var(--nf-bg);
+  background-image: none;
+}
+
+.notflix-ui .profile-brand-lockup {
+  display: flex;
+  justify-content: center;
+}
+
+.notflix-ui .profile-brand-lockup > * {
+  display: none;
+}
+
+.notflix-ui .profile-brand-lockup::before {
+  content: "";
+  display: block;
+  width: 324px;
+  height: 92px;
+  background: url("../assets/notflix/notflix-wordmark.svg") no-repeat center;
+  background-size: contain;
+}
+
+.notflix-ui .profile-title {
+  color: var(--nf-text);
+  font-weight: 500;
+  font-size: 84px;
+}
+
+.notflix-ui .profile-subtitle,
+.notflix-ui .profile-hint {
+  color: var(--nf-secondary);
+  font-weight: 400;
+}
+
+.notflix-ui .profile-hint {
+  color: #8c8c8c;
+}
+
+.notflix-ui .profile-card .profile-name {
+  color: var(--nf-secondary);
+  font-weight: 400;
+}
+
+.notflix-ui .profile-card.focused .profile-name {
+  color: var(--nf-text);
+}
+
+.notflix-ui .profile-card.focused {
+  transform: none;
+}
+
+.notflix-ui .profile-avatar-ring {
+  border-color: rgba(38, 38, 44, 0.9);
+  background: #111114;
+}
+
+.notflix-ui .profile-card.focused .profile-avatar-ring {
+  border-color: #ffffff;
+}
+
+.notflix-ui .profile-card-add .profile-avatar-ring {
+  background: #1d1d22;
+}
+
+.notflix-ui .search-screen-shell .search-content.nf-search-content {
+  position: relative;
+  margin-top: var(--notflix-bar-height);
+  height: calc(100vh - var(--notflix-bar-height));
+  padding: 8px 0 0 640px;
+  box-sizing: border-box;
+}
+
+.notflix-ui .nf-search-header {
+  position: fixed;
+  top: calc(var(--notflix-bar-height) + 16px);
+  left: var(--notflix-gutter);
+  width: 520px;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  display: block;
+  z-index: 5;
+  background: transparent;
+}
+
+.notflix-ui .nf-search-header .search-input-field {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.notflix-ui .nf-kb {
+  display: block;
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+.notflix-ui .nf-kb-query {
+  height: 88px;
+  margin-bottom: 20px;
+  color: var(--nf-text);
+  font-size: 40px;
+  line-height: 88px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .nf-kb-query.is-empty {
+  color: #6c6c74;
+}
+
+.notflix-ui .nf-kb-grid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 532px;
+}
+
+.notflix-ui .nf-kb-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 78px;
+  margin: 0 12px 14px 0;
+  border: 2px solid #3a3a42;
+  border-radius: 8px;
+  color: var(--nf-text);
+  font-size: 30px;
+  box-sizing: border-box;
+}
+
+.notflix-ui .nf-kb-grid .nf-kb-key:nth-child(6n) {
+  margin-right: 0;
+}
+
+.notflix-ui .nf-kb-wide {
+  display: flex;
+  width: 520px;
+}
+
+.notflix-ui .nf-kb-space {
+  width: 338px;
+}
+
+.notflix-ui .nf-kb-delete {
+  width: 170px;
+  margin-right: 0;
+}
+
+.notflix-ui .nf-kb.focused .nf-kb-key.is-selected {
+  background: var(--nf-text);
+  border-color: var(--nf-text);
+  color: var(--nf-bg);
+}
+
+.notflix-ui .nf-search-content .search-empty-state {
+  margin-top: 120px;
+}
+
+.notflix-ui .nf-search-content .search-results-row .search-results-track,
+.notflix-ui .nf-search-content .search-recent-section {
+  padding-left: 0;
+}
+
+.notflix-ui .nf-search-content .search-results-title {
+  font-size: 28px;
+  line-height: 38px;
+  font-weight: 600;
+  color: var(--nf-text);
+  padding-left: 0;
+}
+
+.notflix-ui .nf-search-content .search-results-subtitle,
+.notflix-ui .nf-search-content .search-result-name,
+.notflix-ui .nf-search-content .search-result-date {
+  display: none;
+}
+
+.notflix-ui .search-screen-shell .search-result-card {
+  flex-basis: 286px;
+  width: 286px;
+  border-radius: 10px;
+}
+
+.notflix-ui .search-screen-shell .search-result-poster-wrap {
+  height: 428px;
+  border: none;
+  border-radius: 10px;
+  background: var(--nf-surface);
+}
+
+.notflix-ui .search-screen-shell .search-result-poster {
+  border-radius: 10px;
+}
+
+.notflix-ui .search-screen-shell .search-result-card.focused .search-result-poster-wrap {
+  box-shadow: inset 0 0 0 4px var(--nf-text);
+  background: var(--nf-surface);
+}
+
+.notflix-ui .search-screen-shell .search-result-card.focused .search-result-poster-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--nf-text);
+  border-radius: 10px;
+}
+
+.nf-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nf-intro-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.notflix-ui .settings-shell .settings-workspace,
+.notflix-ui .settings-shell:has(.home-sidebar[data-collapsible="true"]) .settings-workspace,
+.notflix-ui .settings-shell.has-collapsible-sidebar .settings-workspace {
+  width: calc(100vw - var(--notflix-gutter) * 2);
+  height: calc(100vh - var(--notflix-bar-height) - 24px);
+  margin: var(--notflix-bar-height) var(--notflix-gutter) 24px var(--notflix-gutter);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 24px 0 0;
+}
+
+.notflix-ui .settings-shell .settings-nav-item,
+.notflix-ui .settings-shell .settings-nav-item.selected {
+  position: relative;
+  min-height: 88px;
+  padding: 0 24px 0 32px;
+  border: none !important;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nf-secondary);
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.notflix-ui .settings-shell .settings-nav-item.selected {
+  color: var(--nf-text);
+}
+
+.notflix-ui .settings-shell .settings-nav-item.selected::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  width: 6px;
+  height: 44px;
+  margin-top: -22px;
+  background: var(--notflix-red);
+}
+
+.notflix-ui .settings-shell .settings-nav-item.focused {
+  background: #ffffff;
+  color: #000000;
+  border: none !important;
+}
+
+.notflix-ui .settings-shell .settings-nav-item.focused::before {
+  display: none;
+}
+
+.notflix-ui .settings-shell .settings-content-header .settings-title {
+  font-family: "NotflixWordmark", var(--app-font-family);
+  font-size: 96px;
+  line-height: 104px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--nf-text);
+}
+
+.notflix-ui .settings-shell .settings-content-header .settings-subtitle {
+  color: var(--nf-secondary);
+  font-size: 32px;
+  line-height: 42px;
+}
+
+.notflix-ui .settings-shell .settings-group-card {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.notflix-ui .settings-shell .settings-group-title {
+  color: var(--nf-text);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+}
+
+.notflix-ui .settings-shell .settings-group-subtitle {
+  color: var(--nf-secondary);
+}
+
+.notflix-ui .settings-shell .settings-action-row {
+  min-height: 128px;
+  padding: 20px 32px;
+  border: none !important;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--nf-divider);
+}
+
+.notflix-ui .settings-shell .settings-action-row.focused {
+  border: none !important;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.notflix-ui .settings-shell .settings-action-row.focused .settings-row-title,
+.notflix-ui .settings-shell .settings-action-row.focused .settings-row-value,
+.notflix-ui .settings-shell .settings-action-row.focused .settings-row-tail,
+.notflix-ui .settings-shell .settings-action-row.focused .settings-row-leading-icon {
+  color: #000000;
+}
+
+.notflix-ui .settings-shell .settings-action-row.focused .settings-row-subtitle {
+  color: #3c3c44;
+}
+
+.notflix-ui .settings-shell .settings-row-title {
+  color: var(--nf-text);
+  font-size: 36px;
+  line-height: 46px;
+}
+
+.notflix-ui .settings-shell .settings-row-subtitle {
+  color: var(--nf-secondary);
+  font-size: 28px;
+  line-height: 38px;
+}
+
+.notflix-ui .settings-shell .settings-row-value {
+  font-size: 32px;
+}
+
+.notflix-ui .settings-shell .settings-toggle-pill {
+  width: 80px;
+  height: 44px;
+  padding: 4px;
+  background: #3a3a42;
+  box-sizing: border-box;
+}
+
+.notflix-ui .settings-shell .settings-toggle-pill .settings-toggle-thumb {
+  width: 36px;
+  height: 36px;
+  background: var(--nf-secondary);
+}
+
+.notflix-ui .settings-shell .settings-action-row.focused .settings-toggle-pill {
+  background: #8e8e96;
+}
+
+.notflix-ui .settings-shell .settings-toggle-pill.is-checked,
+.notflix-ui .settings-shell .settings-action-row.focused .settings-toggle-pill.is-checked {
+  background: var(--notflix-red);
+}
+
+.notflix-ui .settings-shell .settings-toggle-pill.is-checked .settings-toggle-thumb {
+  background: #ffffff;
+}
+
+.notflix-ui .notflix-hidden {
+  display: none;
+}
+
+.notflix-ui .library-shell .library-main {
+  margin-left: 0;
+  margin-top: var(--notflix-bar-height);
+  height: calc(100vh - var(--notflix-bar-height));
+  padding-top: 8px;
+  box-sizing: border-box;
+}
+
+.notflix-ui .library-shell .library-page-title {
+  font-family: "NotflixWordmark", var(--app-font-family);
+  font-size: 88px;
+  line-height: 96px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--nf-text);
+}
+
+.notflix-ui .nf-calendar-shell {
+  background: var(--nf-bg);
+}
+
+.notflix-ui .nf-calendar-main {
+  position: absolute;
+  top: var(--notflix-bar-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 36px var(--notflix-gutter) 88px;
+  box-sizing: border-box;
+}
+
+.notflix-ui .nf-cal-title {
+  margin: 0;
+  font-family: "NotflixWordmark", var(--app-font-family);
+  font-size: 80px;
+  line-height: 92px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--nf-text);
+}
+
+.notflix-ui .nf-cal-subtitle {
+  margin: 4px 0 20px;
+  color: var(--nf-secondary);
+  font-size: 26px;
+  line-height: 36px;
+}
+
+.notflix-ui .nf-cal-message {
+  margin-top: 120px;
+  color: var(--nf-secondary);
+  font-size: 30px;
+  text-align: center;
+}
+
+.notflix-ui .nf-cal-day {
+  margin-bottom: 36px;
+}
+
+.notflix-ui .nf-cal-day-title {
+  margin: 0 0 14px;
+  color: var(--nf-text);
+  font-size: 32px;
+  line-height: 42px;
+  font-weight: 600;
+}
+
+.notflix-ui .nf-cal-track {
+  display: flex;
+  overflow: hidden;
+  padding: 6px 4px;
+}
+
+.notflix-ui .nf-cal-card {
+  flex: 0 0 300px;
+  width: 300px;
+  margin-right: 24px;
+  padding: 10px;
+  border: 4px solid transparent;
+  border-radius: 10px;
+  background: var(--nf-surface);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.notflix-ui .nf-cal-card.focused {
+  border-color: var(--nf-text);
+}
+
+.notflix-ui .nf-cal-art {
+  height: 400px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #26262c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--nf-secondary);
+  font-size: 24px;
+  text-align: center;
+}
+
+.notflix-ui .nf-cal-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .nf-cal-name {
+  margin-top: 10px;
+  color: var(--nf-text);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .nf-cal-episode,
+.notflix-ui .nf-cal-episode-title {
+  color: var(--nf-secondary);
+  font-size: 22px;
+  line-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-poster-card.nf-expanded:not(.home-collection-card):not(.is-landscape) {
+  flex-basis: var(--nf-exp-w, 608px);
+  width: var(--nf-exp-w, 608px);
+  min-width: var(--nf-exp-w, 608px);
+  max-width: var(--nf-exp-w, 608px);
+}
+
+.notflix-ui .home-poster-card.nf-expanded .home-poster-frame,
+.notflix-ui .home-poster-card.nf-expanded .nf-card-badge {
+  visibility: hidden;
+}
+
+.notflix-ui .home-poster-card.nf-expanded.nf-info-below,
+.notflix-ui .home-poster-card.nf-expanded.nf-info-below::after,
+.notflix-ui .home-poster-card.nf-expanded.nf-info-below .nf-xp {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.notflix-ui .nf-xp {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.notflix-ui .home-screen-shell:not(.nf-motion-reduced) .nf-xp,
+.notflix-ui .nf-xp-float {
+  animation: nf-fade-in 160ms ease-out;
+}
+
+@keyframes nf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.notflix-ui .nf-xp-art {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.notflix-ui .nf-xp-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .nf-xp-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.notflix-ui .nf-xp-brand {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  z-index: 3;
+}
+
+.notflix-ui .nf-xp-logo {
+  display: block;
+  max-width: 62%;
+  max-height: 150px;
+  height: auto;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.notflix-ui .nf-xp-title {
+  display: block;
+  color: #ffffff;
+  font-size: 40px;
+  line-height: 46px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-xp-trailer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-xp-trailer iframe,
+.notflix-ui .nf-xp-trailer video,
+.notflix-ui .nf-av-object,
+.notflix-ui .nf-preview-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.notflix-ui .home-poster-card.nf-previewing .nf-xp-art {
+  background: transparent;
+}
+
+.notflix-ui .home-poster-card.nf-previewing .nf-xp-backdrop {
+  visibility: hidden;
+}
+
+.notflix-ui .home-poster-card.nf-previewing .nf-xp-scrim {
+  height: 35%;
+}
+
+.notflix-ui .nf-xp-float {
+  position: fixed;
+  z-index: 45;
+  padding: 18px 20px 20px;
+  box-sizing: border-box;
+  background: var(--nf-surface);
+  border: 4px solid var(--nf-text);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+.notflix-ui .nf-xp-float.is-overlay {
+  border-top: 4px solid var(--nf-text);
+  border-radius: 10px;
+  background: rgba(24, 24, 29, 0.96);
+}
+
+.notflix-ui .nf-xp-float > * + * {
+  margin-top: 10px;
+}
+
+.notflix-ui .nf-xp-actions {
+  display: flex;
+  align-items: center;
+}
+
+.notflix-ui .nf-xp-action {
+  width: 60px;
+  height: 60px;
+  margin-right: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(196, 196, 204, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--nf-text);
+  box-sizing: border-box;
+}
+
+.notflix-ui .nf-xp-action .nf-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.notflix-ui .nf-xp-action-play {
+  background: var(--nf-text);
+  border-color: var(--nf-text);
+  color: var(--nf-bg);
+}
+
+.notflix-ui .nf-xp-action.is-selected {
+  border-width: 4px;
+  border-color: var(--nf-text);
+  background: var(--nf-text);
+  color: var(--nf-bg);
+  box-shadow: 0 0 0 4px rgba(244, 244, 245, 0.3);
+}
+
+.notflix-ui .nf-xp-label {
+  display: none;
+  color: var(--nf-text);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 600;
+}
+
+.notflix-ui .nf-xp-float.nf-actions-active .nf-xp-label {
+  display: block;
+}
+
+.notflix-ui .nf-xp-facts {
+  display: flex;
+  align-items: center;
+  color: var(--nf-secondary);
+  font-size: 26px;
+  line-height: 34px;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-xp-facts .nf-imdb-badge {
+  margin-right: 12px;
+}
+
+.notflix-ui .nf-xp-ends {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--nf-text);
+}
+
+.notflix-ui .nf-xp-genres {
+  color: var(--nf-text);
+  font-size: 24px;
+  line-height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .nf-xp-desc {
+  margin: 0;
+  margin-top: 10px;
+  color: var(--nf-secondary);
+  font-size: 24px;
+  line-height: 32px;
+  max-height: 96px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-bb-trailer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-bb-trailer .nf-av-object,
+.notflix-ui .nf-bb-trailer .nf-preview-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .home-hero-card.nf-hero-previewing .home-hero-backdrop-wrap {
+  visibility: hidden;
+}
+
+.notflix-ui .home-hero-card.nf-hero-previewing {
+  background: transparent;
+}
+
+.notflix-ui .home-hero-card.nf-hero-previewing .nf-bb-desc {
+  -webkit-line-clamp: 2;
+}
+
+.nf-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nf-loading-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nf-loading-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.nf-loading-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1100px;
+  padding: 0 60px;
+  text-align: center;
+}
+
+.nf-loading-logo {
+  max-width: 720px;
+  max-height: 260px;
+  object-fit: contain;
+}
+
+.nf-loading-title {
+  color: #ffffff;
+  font-size: 72px;
+  line-height: 82px;
+  font-weight: 700;
+}
+
+.nf-loading-spinner {
+  width: 64px;
+  height: 64px;
+  margin-top: 48px;
+  border: 6px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #e50914;
+  border-radius: 50%;
+  animation: nf-spin 900ms linear infinite;
+}
+
+@keyframes nf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nf-loading-status {
+  margin-top: 24px;
+  color: #c4c4cc;
+  font-size: 28px;
+  line-height: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 1000px;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-catalogs {
+  padding-bottom: 520px;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-row-continue-poster .home-continue-card {
+  flex: 0 0 var(--nf-card-w, 231px);
+  width: var(--nf-card-w, 231px);
+  min-width: var(--nf-card-w, 231px);
+  max-width: var(--nf-card-w, 231px);
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-row-continue-poster .home-continue-media {
+  height: var(--nf-card-h, 346px);
+  aspect-ratio: auto;
+  border-radius: 10px;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-row-continue-poster .home-continue-badge,
+.notflix-ui .home-screen-shell.home-layout-classic .home-row-continue-poster .home-continue-copy {
+  display: none;
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-row-continue-poster
+  .home-continue-progress {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  border-radius: 0;
+  background: rgba(128, 128, 128, 0.55);
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-row-continue-poster
+  .home-continue-progress
+  span {
+  border-radius: 0;
+  background: var(--notflix-red);
+}
+
+.notflix-ui
+  .home-screen-shell.home-layout-classic
+  .home-row-continue-poster
+  .home-continue-card.nf-cw-expanded {
+  flex-basis: calc(var(--nf-card-h, 346px) * 16 / 9);
+  width: calc(var(--nf-card-h, 346px) * 16 / 9);
+  min-width: calc(var(--nf-card-h, 346px) * 16 / 9);
+  max-width: calc(var(--nf-card-h, 346px) * 16 / 9);
+}
+
+.notflix-ui .nf-cw-xp {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #000;
+  animation: nf-fade-in 200ms ease-out;
+}
+
+.notflix-ui .nf-cw-xp-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .nf-cw-xp-scrim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 55%);
+}
+
+.notflix-ui .nf-cw-xp-brand {
+  position: absolute;
+  left: 22px;
+  right: 40%;
+  bottom: 26px;
+}
+
+.notflix-ui .nf-cw-xp-logo {
+  display: block;
+  max-width: 100%;
+  max-height: 96px;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.notflix-ui .nf-cw-xp-title {
+  color: var(--nf-text);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.notflix-ui .nf-cw-xp-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: rgba(128, 128, 128, 0.55);
+}
+
+.notflix-ui .nf-cw-xp-progress span {
+  display: block;
+  height: 100%;
+  background: var(--notflix-red);
+}
+
+.notflix-ui .nf-cw-info {
+  position: fixed;
+  z-index: 45;
+  padding: 0 4px 14px;
+  box-sizing: border-box;
+  background: var(--nf-bg);
+  animation: nf-fade-in 200ms ease-out;
+}
+
+.notflix-ui .nf-cw-info-head {
+  color: var(--nf-text);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .nf-cw-info-sub {
+  margin-top: 4px;
+  color: var(--nf-secondary, #c4c4cc);
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh .series-detail-logo {
+  max-width: 680px;
+  max-height: 200px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-body {
+  max-width: 900px;
+}
+
+.notflix-ui .nf-dh-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 22px;
+  color: var(--nf-text);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 500;
+}
+
+.notflix-ui .nf-dh-dot {
+  margin: 0 12px;
+  color: var(--nf-secondary);
+}
+
+.notflix-ui .nf-dh-ratings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.notflix-ui .nf-dh-ratings > * {
+  margin: 0 14px 0 0;
+}
+
+.notflix-ui .nf-dh-age {
+  padding: 2px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  color: var(--nf-text);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 600;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-ratings .detail-ratings-row {
+  margin: 0;
+}
+
+.notflix-ui .nf-dh-ep-title {
+  margin-top: 20px;
+  color: var(--nf-text);
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-dh-desc {
+  display: -webkit-box;
+  margin: 10px 0 0;
+  max-width: 880px;
+  overflow: hidden;
+  color: var(--nf-text);
+  font-size: 28px;
+  line-height: 38px;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.notflix-ui .nf-dh-cast {
+  margin: 10px 0 0;
+  color: var(--nf-secondary);
+  font-size: 24px;
+  line-height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 880px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 620px;
+  margin-top: 26px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions > * {
+  margin: 0;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play.focused {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 72px;
+  margin-bottom: 12px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 36px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--nf-text);
+  font-size: 28px;
+  font-weight: 600;
+  outline: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play.focused {
+  background: #ffffff;
+  color: #000000;
+}
+
+.notflix-ui .nf-dh-play-icon {
+  display: flex;
+  margin-right: 14px;
+}
+
+.notflix-ui .nf-dh-play-icon .nf-dh-icon {
+  width: 40px;
+  height: 40px;
+  fill: currentColor;
+}
+
+.notflix-ui .nf-dh-play-label {
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-dh-play-progress {
+  position: relative;
+  flex: 1 1 auto;
+  height: 5px;
+  margin-left: 22px;
+  min-width: 60px;
+  max-width: 160px;
+  background: rgba(128, 128, 128, 0.6);
+}
+
+.notflix-ui .nf-dh-play-progress span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--notflix-red);
+}
+
+.notflix-ui .nf-dh-play-remaining {
+  margin-left: 14px;
+  font-size: 22px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 58px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 29px;
+  background: transparent;
+  color: var(--nf-secondary);
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: 500;
+  text-align: left;
+  outline: none;
+  box-shadow: none;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-row.focused {
+  background: #ffffff;
+  color: #000000;
+}
+
+.notflix-ui .nf-dh-row-icon {
+  display: flex;
+  margin-right: 18px;
+}
+
+.notflix-ui .nf-dh-row .nf-dh-icon {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+.notflix-ui .nf-av {
+  position: fixed;
+  z-index: 60;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+  animation: nf-fade-in 160ms ease-out;
+}
+
+.notflix-ui .nf-av-panel {
+  display: flex;
+  padding: 48px 56px;
+  border-radius: 12px;
+  background: var(--nf-surface);
+}
+
+.notflix-ui .nf-av-col {
+  width: 520px;
+}
+
+.notflix-ui .nf-av-col + .nf-av-col {
+  margin-left: 48px;
+}
+
+.notflix-ui .nf-av-title {
+  margin-bottom: 18px;
+  color: var(--nf-text);
+  font-size: 34px;
+  line-height: 42px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-av-item {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 20px;
+  border-radius: 8px;
+  color: var(--nf-secondary);
+  font-size: 28px;
+}
+
+.notflix-ui .nf-av-item.is-selected {
+  color: var(--nf-text);
+  font-weight: 600;
+}
+
+.notflix-ui .nf-av-item.is-cursor {
+  background: #ffffff;
+  color: #000000;
+}
+
+.notflix-ui .nf-av-check {
+  display: flex;
+  width: 40px;
+}
+
+.notflix-ui .nf-av-check .nf-dh-icon {
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
+}
+
+.notflix-ui .nf-ratings {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 14px;
+}
+
+.notflix-ui .nf-rating-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 16px;
+  color: var(--nf-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-rating-chip img {
+  height: 26px;
+  width: auto;
+  max-width: 56px;
+  margin-right: 8px;
+  object-fit: contain;
+}
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-collection-card {
+  position: relative;
+}
+
+.notflix-ui .home-screen-shell .home-content-card,
+.notflix-ui .home-screen-shell .home-content-card.focused,
+.notflix-ui .home-screen-shell .home-content-card::after,
+.notflix-ui .home-screen-shell .home-content-card::before,
+.notflix-ui .home-screen-shell .home-poster-frame,
+.notflix-ui .home-screen-shell .home-poster-frame::after,
+.notflix-ui .home-screen-shell .home-poster-frame::before,
+.notflix-ui .home-screen-shell .content-poster,
+.notflix-ui .home-screen-shell .home-poster-focus-gif,
+.notflix-ui .home-screen-shell .home-continue-media,
+.notflix-ui .home-screen-shell .home-continue-media::before,
+.notflix-ui .home-screen-shell .home-continue-card.focused .home-continue-media,
+.notflix-ui .home-screen-shell .home-continue-bg,
+.notflix-ui .home-screen-shell .home-seeall-card,
+.notflix-ui .home-screen-shell .home-seeall-card-inner,
+.notflix-ui .nf-xp,
+.notflix-ui .nf-xp-art,
+.notflix-ui .nf-xp-float,
+.notflix-ui .nf-xp-float.is-overlay,
+.notflix-ui .nf-cw-xp,
+.notflix-ui .search-result-card,
+.notflix-ui .search-result-card .content-poster,
+.notflix-ui .library-grid-card,
+.notflix-ui .library-grid-card img,
+.notflix-ui .nf-cal-card,
+.notflix-ui .nf-cal-art {
+  border-radius: 0 !important;
+}
+
+.notflix-ui .profile-screen.nf-pf {
+  background: var(--nf-bg) !important;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-screen-background {
+  display: none;
+}
+
+.notflix-ui .nf-pf-showcase {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  background: var(--nf-bg);
+}
+
+.notflix-ui .nf-pf-slide {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.notflix-ui .nf-pf-slide.is-entering {
+  animation: nf-pf-in 1100ms ease-out both;
+}
+
+@keyframes nf-pf-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.notflix-ui .nf-pf-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .nf-pf-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 16%, rgba(0, 0, 0, 0) 32%),
+    linear-gradient(315deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0) 34%);
+}
+
+.notflix-ui .nf-pf-info {
+  position: absolute;
+  right: 72px;
+  bottom: 64px;
+  width: 620px;
+  text-align: right;
+}
+
+.notflix-ui .nf-pf-logo {
+  display: block;
+  max-width: 560px;
+  max-height: 170px;
+  margin-left: auto;
+  object-fit: contain;
+  object-position: right bottom;
+}
+
+.notflix-ui .nf-pf-name {
+  color: var(--nf-text);
+  font-family: "Bebas Neue", var(--app-font-family);
+  font-size: 80px;
+  line-height: 0.95;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+
+.notflix-ui .nf-pf-tags {
+  margin-top: 16px;
+  color: var(--nf-text);
+  font-size: 26px;
+  line-height: 36px;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.notflix-ui .nf-pf-desc {
+  display: -webkit-box;
+  margin: 12px 0 0;
+  max-width: 900px;
+  overflow: hidden;
+  color: var(--nf-text);
+  font-size: 26px;
+  line-height: 36px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-main-layer {
+  position: relative;
+  z-index: 1;
+  width: 36%;
+  min-width: 600px;
+  height: 100vh;
+  padding: 60px 0 0 96px;
+  box-sizing: border-box;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-brand-lockup {
+  justify-content: flex-start;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-brand-lockup::before {
+  width: 190px;
+  height: 54px;
+  background-position: left center;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-title {
+  margin: 48px 0 0;
+  font-size: 48px;
+  line-height: 58px;
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-subtitle,
+.notflix-ui .profile-screen.nf-pf .profile-hint {
+  display: none;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-grid,
+.notflix-ui .profile-screen.nf-pf .profile-grid-compact {
+  position: relative;
+  display: block;
+  gap: 0;
+  min-height: 0;
+  height: calc(100vh - 260px);
+  margin: 30px 0 0 -12px;
+  padding: 12px;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-grid > .profile-card,
+.notflix-ui .profile-screen.nf-pf .profile-grid-compact > .profile-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 30px;
+  padding: 0;
+  text-align: left;
+  transform: none;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-avatar-ring,
+.notflix-ui .profile-screen.nf-pf .profile-card.focused .profile-avatar-ring,
+.notflix-ui .profile-screen.nf-pf .profile-grid-compact .profile-avatar-ring {
+  flex: 0 0 auto;
+  width: 176px;
+  height: 176px;
+  margin: 0;
+  border: 5px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-card.focused .profile-avatar-ring {
+  border-color: #ffffff;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-avatar,
+.notflix-ui .profile-screen.nf-pf .profile-card.focused .profile-avatar,
+.notflix-ui .profile-screen.nf-pf .profile-grid-compact .profile-avatar {
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  font-size: 68px;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-avatar-image {
+  border-radius: 50%;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-primary-dot,
+.notflix-ui .profile-screen.nf-pf .profile-badge,
+.notflix-ui .profile-screen.nf-pf .profile-badge-slot {
+  display: none;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-name,
+.notflix-ui .profile-screen.nf-pf .profile-grid-compact .profile-name {
+  margin: 0 0 0 32px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-card.focused .profile-name {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions {
+  position: relative;
+  display: block;
+  width: 460px;
+  max-height: 248px;
+  margin-top: 22px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 72%, rgba(0, 0, 0, 0) 100%);
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions.is-at-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.notflix-ui .nf-dh-play-icon .nf-dh-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-row {
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 25px;
+  font-size: 23px;
+}
+
+.notflix-ui .nf-dh-row .nf-dh-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.notflix-ui .nf-dh-play-remaining {
+  font-size: 20px;
+}
+
+.notflix-ui .nf-linear .nf-dsec {
+  margin-top: 36px;
+}
+
+.notflix-ui .nf-linear .nf-dsec-title {
+  margin: 0 0 14px;
+  color: var(--nf-text);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-linear .series-insight-tabs {
+  display: none;
+}
+
+.notflix-ui .detail-morelike-card .detail-morelike-poster-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-rail-trailer {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.notflix-ui .detail-morelike-card.nf-rail-previewing .nf-rail-trailer {
+  opacity: 1;
+}
+
+.notflix-ui .nf-rail-trailer video,
+.notflix-ui .nf-rail-trailer object {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notflix-ui .nf-linear .nf-dsec-title {
+  padding-left: 96px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-card {
+  flex: 0 0 500px;
+  flex-basis: 500px;
+  width: 500px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-thumb {
+  height: 281px;
+}
+
+.notflix-ui .stream-route-chip.selected,
+.notflix-ui .stream-route-chip.selected.loading {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+}
+
+.player-sources-filters {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+  overflow: hidden;
+}
+
+.player-sources-filter {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  border-radius: 999px;
+}
+
+.player-sources-filter.selected,
+.player-sources-filter.focused {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+}
+
+.player-source-desc {
+  white-space: pre-line;
+}
+
+.notflix-ui .home-poster-trailer-layer.nf-xp-trailer {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.notflix-ui .home-poster-trailer-layer.nf-xp-trailer.nf-trailer-on {
+  opacity: 1;
+}
+
+.notflix-ui .home-poster-trailer-layer.nf-xp-trailer iframe,
+.notflix-ui .home-poster-trailer-layer.nf-xp-trailer video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.notflix-ui .home-poster-trailer-layer.nf-bb-trailer {
+  z-index: 0;
+}
+
+.notflix-ui .home-poster-trailer-layer.nf-rail-trailer {
+  z-index: 2;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions {
+  width: 780px;
+  max-height: 236px;
+  margin-top: 24px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 74%, rgba(0, 0, 0, 0.15) 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 74%, rgba(0, 0, 0, 0.15) 100%);
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 62px;
+  margin: 0 0 4px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 31px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: inherit;
+  font-size: 28px;
+  font-weight: 500;
+  text-align: left;
+  outline: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play.focused,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-row.focused {
+  height: 62px;
+  margin: 0 0 4px;
+  padding: 0 28px;
+  border-radius: 31px;
+  background: #ffffff;
+  color: #141414;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play-icon,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-row-icon {
+  display: flex;
+  width: 34px;
+  margin-right: 22px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-icon {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play-progress {
+  max-width: 200px;
+  height: 4px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play-remaining {
+  font-size: 22px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play.focused {
+  min-height: 0;
+  max-height: 62px;
+  min-width: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 62px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions {
+  padding-bottom: 70px;
+  box-sizing: content-box;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions {
+  max-height: 166px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-overview {
+  display: none;
+}
+
+.notflix-ui .series-detail-shell .series-episode-copy {
+  padding: 20px 24px 24px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-badge {
+  padding: 4px 12px;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-title {
+  display: block;
+  min-height: 0;
+  max-height: 68px;
+  overflow: hidden;
+  font-size: 28px;
+  line-height: 34px;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.notflix-ui .series-detail-shell .series-episode-title .series-episode-title-text,
+.notflix-ui
+  .series-detail-shell
+  .series-episode-title.is-marquee-active
+  .series-episode-title-text {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: normal;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  animation: none;
+  transform: none;
+}
+
+.notflix-ui .series-detail-shell .series-episode-meta {
+  flex-wrap: wrap;
+  font-size: 20px;
+}
+
+.notflix-ui .series-detail-shell .detail-hero-section.nf-dh {
+  padding-bottom: 220px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh .series-detail-logo {
+  max-width: 600px;
+  max-height: 160px;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play-icon,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-row-icon {
+  flex: 0 0 34px;
+  justify-content: center;
+  min-width: 34px;
+  max-width: 34px;
+  height: 34px;
+  margin: 0 22px 0 0;
+  padding: 0;
+}
+
+.notflix-ui #home.home-dom-preserved {
+  display: block !important;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-200vw) !important;
+}
+
+.notflix-ui .profile-screen.nf-pf.nf-pf-picking .profile-card {
+  opacity: 0.3;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-card.is-activating {
+  opacity: 1;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-card.is-activating .profile-avatar-ring {
+  box-shadow: 0 0 0 6px #ffffff;
+  will-change: transform;
+  animation: nfProfilePick 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes nfProfilePick {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-play,
+.notflix-ui .series-detail-shell .nf-dh-actions .nf-dh-row {
+  gap: 0;
+  column-gap: 0;
+}
+
+.notflix-ui .series-detail-shell .series-episode-meta {
+  justify-content: flex-start;
+}
+
+.notflix-ui .series-detail-shell .series-episode-meta > * {
+  margin-right: 20px;
+}
+
+.notflix-ui .series-detail-shell .series-episode-meta .series-episode-date {
+  margin-left: 0;
+  text-align: left;
+}
+
+.notflix-ui .nf-player .player-controls-overlay {
+  padding: 0;
+}
+
+.notflix-ui .nf-player .player-controls-top,
+.notflix-ui .nf-player .player-meta,
+.notflix-ui .nf-player .player-time-label {
+  display: none;
+}
+
+.notflix-ui .nf-player .player-controls-gradient-top {
+  height: 260px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.notflix-ui .nf-player .player-controls-gradient-bottom {
+  height: 420px;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.45) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.notflix-ui .nf-player .player-controls-bottom,
+.notflix-ui .nf-player .player-controls-bar,
+.notflix-ui .nf-player .player-controls-row,
+.notflix-ui .nf-player .player-control-buttons {
+  position: static;
+  transform: none;
+}
+
+.notflix-ui .nf-player .player-controls-bottom {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 96px 52px;
+}
+
+.notflix-ui .nf-player .player-controls-bar {
+  display: block;
+  margin: 0;
+}
+
+.notflix-ui .nf-player .nf-pl-row {
+  display: flex;
+  align-items: center;
+  height: 84px;
+  margin-bottom: 30px;
+  padding-left: 116px;
+}
+
+.notflix-ui .nf-player .nf-pl-cur,
+.notflix-ui .nf-player .nf-pl-dur {
+  flex: 0 0 auto;
+  min-width: 96px;
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.notflix-ui .nf-player .nf-pl-cur {
+  margin-right: 24px;
+}
+
+.notflix-ui .nf-player .nf-pl-dur {
+  margin-left: 24px;
+  text-align: right;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-shell {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  overflow: visible;
+  box-shadow: none;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-shell.focused .player-progress-track {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-buffered {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: inherit;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-fill {
+  background: #e50914;
+  border-radius: inherit;
+}
+
+.notflix-ui .nf-player .nf-pl-row .player-progress-shell.focused .player-progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  border-radius: 50%;
+  background: #e50914;
+}
+
+.notflix-ui .nf-player .player-controls-row {
+  display: block;
+  margin: 0;
+}
+
+.notflix-ui .nf-player .player-control-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+}
+
+.notflix-ui .nf-player .player-control-btn {
+  box-shadow: none;
+  outline: none;
+  transform: none;
+  transition: none;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-pill {
+  width: auto;
+  min-width: 0;
+  height: 52px;
+  margin: 0 8px;
+  padding: 0 26px;
+  border-radius: 26px;
+  background: rgba(120, 135, 160, 0.42);
+  color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-pill .player-control-label {
+  color: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 52px;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-pill.focused {
+  background: #ffffff;
+  color: #141414;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-play {
+  position: absolute;
+  bottom: 130px;
+  left: 96px;
+  width: 84px;
+  min-width: 84px;
+  height: 84px;
+  margin: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-play .player-control-icon-mask {
+  width: 38px;
+  height: 38px;
+  background-color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-play.focused {
+  background: #ffffff;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-play.focused .player-control-icon-mask {
+  background-color: #141414;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top {
+  position: fixed;
+  top: 56px;
+  width: 76px;
+  min-width: 76px;
+  height: 76px;
+  margin: 0;
+  border-radius: 50%;
+  background: transparent;
+  overflow: visible;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top-0 {
+  left: 84px;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top-1 {
+  left: 188px;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top-2 {
+  left: 292px;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top .player-control-icon-mask {
+  width: 44px;
+  height: 44px;
+  background-color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top.focused {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top.focused .player-control-icon-mask {
+  background-color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-control-btn.nf-pc-top.focused::after {
+  content: attr(title);
+  position: absolute;
+  top: 88px;
+  left: 50%;
+  width: 360px;
+  margin-left: -180px;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 28px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-player .nf-pl-head {
+  position: absolute;
+  top: 60px;
+  right: 96px;
+  max-width: 900px;
+  text-align: right;
+}
+
+.notflix-ui .nf-player .nf-pl-title {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 38px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-player .nf-pl-line {
+  margin-top: 4px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 34px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-player .player-controls-overlay.pause-overlay-active .player-controls-gradient-top,
+.notflix-ui
+  .nf-player
+  .player-controls-overlay.pause-overlay-active
+  .player-controls-gradient-bottom,
+.notflix-ui .nf-player .player-controls-overlay.pause-overlay-active .player-controls-bottom {
+  opacity: 1;
+}
+
+.notflix-ui .nf-player .player-pause-overlay {
+  z-index: 29;
+  background: transparent;
+}
+
+.notflix-ui .nf-player .nf-pp-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.25) 45%,
+    rgba(0, 0, 0, 0) 70%
+  );
+}
+
+.notflix-ui .nf-player .nf-pp-info {
+  position: absolute;
+  top: 300px;
+  left: 96px;
+  max-width: 760px;
+}
+
+.notflix-ui .nf-player .nf-pp-logo {
+  display: block;
+  max-width: 620px;
+  max-height: 220px;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.notflix-ui .nf-player .nf-pp-title {
+  color: #ffffff;
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 80px;
+}
+
+.notflix-ui .nf-player .nf-pp-line {
+  margin-top: 24px;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 38px;
+}
+
+.notflix-ui .nf-player .player-sources-panel {
+  width: 780px;
+  padding: 56px 40px 32px 48px;
+  border-radius: 0;
+  background: rgba(16, 16, 16, 0.97);
+  transform: none;
+  transition: none;
+}
+
+.notflix-ui .nf-player .player-sources-panel.hidden {
+  display: none;
+}
+
+.notflix-ui .nf-player .player-sources-title {
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-player .player-sources-top-btn {
+  height: 56px;
+  margin-left: 12px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+}
+
+.notflix-ui .nf-player .player-sources-top-btn.focused {
+  background: #ffffff;
+  color: #141414;
+  box-shadow: none;
+}
+
+.notflix-ui .nf-player .player-source-current-meta {
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.notflix-ui .nf-player .player-sources-filters {
+  margin-top: 28px;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+.notflix-ui .nf-player .player-sources-filter {
+  height: 52px;
+  margin-right: 14px;
+  padding: 0 26px;
+  border: none;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 22px;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+}
+
+.notflix-ui .nf-player .player-sources-filter.selected {
+  background: rgba(255, 255, 255, 0.34);
+  color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-sources-filter.focused,
+.notflix-ui .nf-player .player-sources-filter.selected.focused {
+  background: #ffffff;
+  color: #141414;
+}
+
+.notflix-ui .nf-player .player-sources-list {
+  margin-top: 22px;
+  padding: 4px 6px 40px 0;
+}
+
+.notflix-ui .nf-player .player-source-card,
+.notflix-ui .nf-player .player-source-card.selected,
+.notflix-ui .nf-player .player-source-card.focused,
+.notflix-ui .nf-player .player-source-card.selected.focused {
+  margin: 0 0 6px;
+  padding: 20px 24px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  transform: none;
+  transition: none;
+}
+
+.notflix-ui .nf-player .player-source-card.focused,
+.notflix-ui .nf-player .player-source-card.selected.focused {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 6px 0 0 #ffffff;
+}
+
+.notflix-ui .nf-player .player-source-title {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+.notflix-ui .nf-player .player-source-desc {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 21px;
+  line-height: 29px;
+}
+
+.notflix-ui .nf-player .player-control-btn,
+.notflix-ui .nf-player .player-sources-panel button {
+  font-family: inherit;
+}
+
+.notflix-ui .nf-player .player-skip-intro,
+.notflix-ui .nf-player .player-next-episode-card.nf-next {
+  position: absolute;
+  top: auto;
+  right: 96px;
+  bottom: 96px;
+  left: auto;
+  width: auto;
+  max-width: 640px;
+  transform: none;
+  transition: opacity 180ms ease;
+}
+
+.notflix-ui .nf-player.controls-visible .player-skip-intro,
+.notflix-ui .nf-player .player-skip-intro.is-raised,
+.notflix-ui .nf-player.controls-visible .player-next-episode-card.nf-next {
+  bottom: 252px;
+}
+
+.notflix-ui .nf-player .player-next-episode-card.nf-next {
+  z-index: 34;
+  pointer-events: auto;
+}
+
+.notflix-ui .nf-player .player-skip-intro-btn,
+.notflix-ui .nf-player .nf-next-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 300px;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 6px;
+  background: rgba(42, 42, 42, 0.78);
+  color: #ffffff;
+  font-family: inherit;
+  box-shadow: none;
+  outline: none;
+  transform: none;
+}
+
+.notflix-ui .nf-player .player-skip-intro:focus-within .player-skip-intro-btn,
+.notflix-ui .nf-player .player-skip-intro-btn.focused,
+.notflix-ui .nf-player .nf-next-btn.focused,
+.notflix-ui .nf-player .nf-next-btn.is-selected {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #141414;
+  box-shadow: none;
+}
+
+.notflix-ui .nf-player .player-skip-intro-content,
+.notflix-ui .nf-player .nf-next-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 34px;
+  white-space: nowrap;
+}
+
+.notflix-ui .nf-player .player-skip-intro-icon,
+.notflix-ui .nf-player .player-skip-intro-progress {
+  display: none;
+}
+
+.notflix-ui .nf-player .player-skip-intro-label,
+.notflix-ui .nf-player .nf-next-label {
+  color: inherit;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 32px;
+  -webkit-text-fill-color: currentColor;
+}
+
+.notflix-ui .nf-player .nf-next-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  background: #ffffff;
+}
+
+.notflix-ui .nf-player .nf-next-btn .nf-next-content {
+  mix-blend-mode: difference;
+  color: #ffffff;
+}
+
+.notflix-ui .nf-player .nf-next-btn.focused .nf-next-content,
+.notflix-ui .nf-player .nf-next-btn.is-selected .nf-next-content {
+  mix-blend-mode: normal;
+  color: #141414;
+}
+
+.notflix-ui .nf-player .nf-next-icon {
+  width: 0;
+  height: 0;
+  margin-right: 16px;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+  border-left: 18px solid currentColor;
+}
+
+.notflix-ui .nf-player .nf-next-btn.nf-filling,
+.notflix-ui .nf-player .nf-next-btn.nf-filling.focused,
+.notflix-ui .nf-player .nf-next-btn.nf-filling.is-selected {
+  border-color: #ffffff;
+  background: rgba(42, 42, 42, 0.78);
+  color: #ffffff;
+}
+
+.notflix-ui .nf-player .nf-next-btn.nf-filling .nf-next-content,
+.notflix-ui .nf-player .nf-next-btn.nf-filling.focused .nf-next-content,
+.notflix-ui .nf-player .nf-next-btn.nf-filling.is-selected .nf-next-content {
+  mix-blend-mode: difference;
+  color: #ffffff;
+}
+
+.notflix-ui .nf-player .player-skip-intro-content,
+.notflix-ui .nf-player .nf-next-content {
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+}
+
+.notflix-ui .nf-player .player-skip-intro-btn {
+  justify-content: center;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-card,
+.notflix-ui .profile-screen.nf-pf .profile-avatar-ring,
+.notflix-ui .profile-screen.nf-pf .profile-avatar,
+.notflix-ui .profile-screen.nf-pf .profile-name {
+  transition: none;
+}
+
+.notflix-ui .profile-screen.nf-pf .profile-title,
+.notflix-ui .profile-screen.nf-pf .profile-name {
+  text-shadow: none;
+}
+
+.notflix-ui .nf-pf-slide.is-entering {
+  will-change: opacity;
+}
+
+.notflix-ui .nf-player .player-loading-overlay {
+  background: #000000;
+}
+
+.notflix-ui .nf-player .player-loading-backdrop,
+.notflix-ui .nf-player .player-loading-gradient,
+.notflix-ui .nf-player .player-loading-identity,
+.notflix-ui .nf-player .player-loading-subtitle,
+.notflix-ui .nf-player .player-loading-spinner-ring {
+  display: none;
+}
+
+.notflix-ui .nf-ld {
+  position: relative;
+  width: 104px;
+  height: 104px;
+}
+
+.notflix-ui .nf-player .player-loading-spinner .nf-ld {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -52px 0 0 -52px;
+}
+
+.notflix-ui .nf-ld-spin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 104px;
+  height: 104px;
+  border: 7px solid rgba(255, 255, 255, 0.14);
+  border-top-color: #e50914;
+  border-radius: 50%;
+  will-change: transform;
+  transform: translateZ(0);
+  animation: nf-ld-spin 0.9s linear infinite;
+}
+
+.notflix-ui .nf-ld-pct {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 104px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 104px;
+  text-align: center;
+}
+
+.notflix-ui .nf-player .player-loading-overlay .player-loading-status {
+  margin-top: 28px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 22px;
+}
+
+@keyframes nf-ld-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notflix-ui .nf-player.controls-visible .player-parental-guide {
+  top: 210px;
+  left: 96px;
+}
+
+.notflix-ui .nf-player .player-parental-guide {
+  left: 96px;
+}
+
+.notflix-ui .nf-dh-meta .nf-dh-age {
+  margin-left: 18px;
+  padding: 0 10px;
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.notflix-ui .nf-xp-facts {
+  overflow: hidden;
+}
+
+.notflix-ui .nf-xp-facts .nf-ratings {
+  flex: 0 0 auto;
+}
+
+.notflix-ui .nf-xp-facts .nf-xp-meta {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notflix-ui .nf-xp-facts .nf-xp-ends {
+  flex: 0 0 auto;
+}
+
+.notflix-ui .nf-xp-desc {
+  max-height: 64px;
+  -webkit-line-clamp: 2;
+}
+
+.notflix-ui .nf-post .player-post-play-scrim {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.94) 0%,
+      rgba(0, 0, 0, 0.8) 34%,
+      rgba(0, 0, 0, 0.2) 62%,
+      rgba(0, 0, 0, 0) 74%
+    ),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 55%);
+}
+
+.notflix-ui .nf-post .player-post-play-content {
+  left: 120px;
+  bottom: 48px;
+  width: 1000px;
+}
+
+.notflix-ui .nf-post .player-post-play-header {
+  color: #d0d0d8;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 44px;
+}
+
+.notflix-ui .nf-post .player-post-play-identity {
+  margin-top: 12px;
+}
+
+.notflix-ui .nf-post .player-post-play-logo {
+  max-width: 620px;
+  max-height: 170px;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.notflix-ui .nf-post .player-post-play-title {
+  font-size: 72px;
+  line-height: 80px;
+}
+
+.notflix-ui .nf-post .player-post-play-meta-row,
+.notflix-ui .nf-post .player-post-play-details {
+  margin-top: 18px;
+  color: #e0e0e8;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.notflix-ui .nf-post .player-post-play-synopsis {
+  max-width: 940px;
+  margin-top: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+}
+
+.notflix-ui .nf-post .player-post-play-synopsis-text {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #c8c8d0;
+  font-size: 26px;
+  line-height: 36px;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.notflix-ui .nf-post .player-post-play-synopsis-read-more,
+.notflix-ui .nf-post .player-post-play-trailer-slot {
+  display: none;
+}
+
+.notflix-ui .nf-post .player-post-play-actions {
+  margin-top: 34px;
+}
+
+.notflix-ui .nf-post .player-post-play-actions > * {
+  margin-right: 20px;
+}
+
+.notflix-ui .nf-post .player-post-play-primary,
+.notflix-ui .nf-post .player-post-play-nav {
+  height: 72px;
+  min-height: 0;
+  border: none;
+  border-radius: 36px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: none;
+  outline: none;
+  transform: none;
+}
+
+.notflix-ui .nf-post .player-post-play-primary {
+  width: 300px;
+  min-width: 300px;
+  padding: 0 28px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.notflix-ui .nf-post .player-post-play-nav {
+  width: 72px;
+  min-width: 72px;
+  padding: 0;
+}
+
+.notflix-ui .nf-post .player-post-play-nav[disabled] {
+  opacity: 1;
+}
+
+.notflix-ui .nf-post .player-post-play-primary.focused,
+.notflix-ui .nf-post .player-post-play-nav.focused {
+  background: #ffffff;
+  color: #0c0c0f;
+}
+
+.notflix-ui .nf-post .player-post-play-primary .player-post-play-action-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 14px;
+  filter: brightness(0) invert(1);
+}
+
+.notflix-ui .nf-post .player-post-play-primary.focused .player-post-play-action-icon,
+.notflix-ui .nf-post .player-post-play-nav.focused .player-post-play-nav-icon {
+  filter: brightness(0);
+}
+
+.notflix-ui .nf-post .player-post-play-nav-icon {
+  filter: brightness(0) invert(1);
+}
+
+.notflix-ui .nf-post .nf-post-progress {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.notflix-ui .nf-post .nf-post-track {
+  position: relative;
+  width: 560px;
+  height: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.notflix-ui .nf-post .nf-post-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  background: #e50914;
+}
+
+.notflix-ui .nf-post .nf-post-count {
+  margin-left: 20px;
+  color: #b4b4c0;
+  font-size: 22px;
+  line-height: 28px;
+}
+
+.notflix-ui .nf-post .nf-post-hint {
+  margin-top: 12px;
+  color: #9a9aaa;
+  font-size: 20px;
+  line-height: 26px;
+}
+
+.notflix-ui .nf-post .player-post-play-player-window {
+  border-radius: 0;
+}
+
+.notflix-ui .nf-post .player-post-play-player-window.focused {
+  box-shadow: 0 0 0 4px #ffffff;
+}
+
+.notflix-ui .nf-post .player-post-play-primary {
+  flex: 0 0 300px;
+  max-width: 300px;
+}
+
+.notflix-ui .detail-morelike-card,
+.notflix-ui .detail-morelike-card *,
+.notflix-ui .detail-morelike-card::before,
+.notflix-ui .detail-morelike-card::after,
+.notflix-ui .detail-morelike-card *::before,
+.notflix-ui .detail-morelike-card *::after,
+.notflix-ui .series-detail-shell .series-episode-card,
+.notflix-ui .series-detail-shell .series-episode-card *,
+.notflix-ui .series-detail-shell .series-episode-card::before,
+.notflix-ui .series-detail-shell .series-episode-card::after {
+  border-radius: 0 !important;
+}
+
+.notflix-ui .series-detail-shell .series-episode-card .series-episode-status {
+  border-radius: 50% !important;
+}
+
+.notflix-ui .nf-player .player-source-badges {
+  display: none;
+}
