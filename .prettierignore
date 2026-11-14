@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+assets
+res
+services/**/runtime
+*.ipk
+*.wgt
+
+.claude
+.opencode
+.orchestration
