@@ -102,6 +102,7 @@ export function createStreamScreenMethods10() {
         },
         returnToStreamOnBack: true,
         nfAutoPicked: Boolean(this.nfAutoPicked),
+        nfCachedLink: Boolean(cachedLink),
         streamRouteParams: this.params ? { ...this.params } : null,
         fromDetailRoute: Boolean(this.params?.fromDetailRoute),
         nextEpisodeVideoId: this.params?.nextEpisodeVideoId || null,

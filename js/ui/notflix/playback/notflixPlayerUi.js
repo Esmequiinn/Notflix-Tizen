@@ -3,7 +3,7 @@ import { PlayerController } from "../../../core/player/playerController.js";
 import { isNotflixActive } from "../notflixAppearance.js";
 import { escapeText, nt } from "../home/notflixHomeMarkup.js";
 import { playUiSound } from "../notflixSounds.js";
-import { getPreloadPercent } from "./notflixLoading.js";
+import { getPreloadPercent, keepSpinning } from "./notflixLoading.js";
 import { segmentCategory } from "../../../core/player/skipIntervalRules.js";
 import { PlayerSettingsStore } from "../../../data/local/playerSettingsStore.js";
 import { syncHtmlSubtitleClearance } from "../../screens/player/subtitleOverlayClearance.js";
@@ -439,6 +439,7 @@ function tickLoading(screen) {
     stopLoadingTicker(screen);
     return;
   }
+  keepSpinning();
   const current = Number(screen.nfLoadPercent || 0);
   const synthetic = current + (LOAD_CEILING - current) * 0.035;
   const next = Math.min(99, Math.max(current, synthetic, Math.min(99, realProgress(screen))));

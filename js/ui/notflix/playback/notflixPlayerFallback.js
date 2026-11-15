@@ -1,8 +1,13 @@
 import { PlayerSettingsStore } from "../../../data/local/playerSettingsStore.js";
+import {
+  StreamLinkCacheStore,
+  activeStreamLinkProfile
+} from "../../../data/local/streamLinkCacheStore.js";
 import { getNotflixAutoplay, isFallbackActive, pickFallbackStream } from "./notflixAutoplay.js";
 import { nt } from "../home/notflixHomeMarkup.js";
 
 const NOTE_MS = 5000;
+const FALLBACK_STARTUP_STALL_MS = 25000;
 
 function clearNote(screen) {
   if (screen.nfFallbackNoteTimer) {
@@ -30,14 +35,44 @@ function showNote(screen, text) {
 }
 
 function excludedIds(screen, state) {
-  const ids = new Set(state.tried);
-  (screen.failedPlaybackStreamIds || new Set()).forEach((id) => ids.add(String(id)));
-  const failedUrls = screen.failedPlaybackUrls || new Set();
+  const ids = new Set();
+  const urls = new Set(state.triedUrls);
+  (screen.failedPlaybackUrls || new Set()).forEach((url) => urls.add(String(url).trim()));
+  if (!state.urlOnly) {
+    state.tried.forEach((id) => ids.add(id));
+    (screen.failedPlaybackStreamIds || new Set()).forEach((id) => ids.add(String(id)));
+  }
   (screen.streamCandidates || []).forEach((candidate) => {
-    if (candidate?.url && failedUrls.has(String(candidate.url).trim()))
-      ids.add(String(candidate.id || ""));
+    const url = String(candidate?.url || "").trim();
+    if (url && urls.has(url)) ids.add(String(candidate.id || ""));
   });
   return ids;
+}
+
+function createState(screen, params) {
+  const config = getNotflixAutoplay();
+  const cached = Boolean(params?.nfCachedLink);
+  if (!cached && !isFallbackActive()) return null;
+  const enabled = isFallbackActive();
+  return {
+    attempts: 0,
+    max: enabled ? config.fallbackAttempts : 1,
+    tried: new Set(params?.preferredStreamId && !cached ? [String(params.preferredStreamId)] : []),
+    triedUrls: new Set(params?.streamUrl ? [String(params.streamUrl).trim()] : []),
+    urlOnly: cached,
+    reloaded: false
+  };
+}
+
+function dropCachedLink(screen) {
+  if (!screen.params?.nfCachedLink || screen.nfCachedLinkDropped) return;
+  screen.nfCachedLinkDropped = true;
+  try {
+    StreamLinkCacheStore.remove(
+      screen.params.streamRouteParams || screen.params,
+      screen.streamLinkCacheProfileId || activeStreamLinkProfile()
+    );
+  } catch (_) {}
 }
 
 function tryFallback(screen) {
@@ -45,7 +80,8 @@ function tryFallback(screen) {
   if (!state || state.attempts >= state.max) return false;
   const candidates = Array.isArray(screen.streamCandidates) ? screen.streamCandidates : [];
   const current = screen.getCurrentStreamCandidate?.();
-  if (current?.id) state.tried.add(String(current.id));
+  if (current?.id && !state.urlOnly) state.tried.add(String(current.id));
+  if (screen.activePlaybackUrl) state.triedUrls.add(String(screen.activePlaybackUrl).trim());
   const next = pickFallbackStream(
     candidates,
     PlayerSettingsStore.get(),
@@ -56,6 +92,7 @@ function tryFallback(screen) {
   if (index < 0) return false;
   state.attempts += 1;
   state.tried.add(String(next.id || ""));
+  if (next.url) state.triedUrls.add(String(next.url).trim());
   screen.currentStreamIndex = index;
   screen.lastPlaybackErrorAt = 0;
   screen.clearPlaybackStallGuard?.();
@@ -73,6 +110,28 @@ function tryFallback(screen) {
     }) + (label ? ` · ${label}` : "")
   );
   void screen.playStreamCandidate(next, {});
+  return true;
+}
+
+function reloadAndRetry(screen, args, base) {
+  const state = screen.nfFallbackState;
+  if (!state || state.reloaded || state.attempts >= state.max || !screen.reloadSources)
+    return false;
+  state.reloaded = true;
+  const token = screen.nfFallbackToken;
+  screen.clearPlaybackStallGuard?.();
+  screen.loadingVisible = true;
+  screen.updateLoadingVisibility?.();
+  showNote(screen, nt("notflix_fallback_searching", "Searching for another source"));
+  Promise.resolve(screen.reloadSources({ forceRefresh: false }))
+    .catch(() => {})
+    .then(() => {
+      if (screen.nfFallbackToken !== token || screen.hasPresentedPlaybackFrame) return;
+      if (!tryFallback(screen)) {
+        clearNote(screen);
+        base.showStartupError.apply(screen, args);
+      }
+    });
   return true;
 }
 
@@ -105,24 +164,27 @@ export function withNotflixPlayer(base) {
     },
     mount(params = {}, ...rest) {
       clearNote(this);
-      const config = getNotflixAutoplay();
-      this.nfFallbackState =
-        params?.nfAutoPicked && isFallbackActive()
-          ? {
-              attempts: 0,
-              max: config.fallbackAttempts,
-              tried: new Set(params?.preferredStreamId ? [String(params.preferredStreamId)] : [])
-            }
-          : null;
+      this.nfCachedLinkDropped = false;
+      this.nfFallbackToken = (this.nfFallbackToken || 0) + 1;
+      this.nfFallbackState = createState(this, params);
       return base.mount.call(this, params, ...rest);
     },
+    getPlaybackStallTimeoutMs(options = {}, ...rest) {
+      const value = base.getPlaybackStallTimeoutMs.call(this, options, ...rest);
+      const state = this.nfFallbackState;
+      if (!options?.startup || !state || state.attempts >= state.max) return value;
+      return Math.min(value, FALLBACK_STARTUP_STALL_MS);
+    },
     showStartupError(...args) {
+      dropCachedLink(this);
       if (tryFallback(this)) return undefined;
+      if (this.params?.nfCachedLink && reloadAndRetry(this, args, base)) return undefined;
       clearNote(this);
       return base.showStartupError.apply(this, args);
     },
     cleanup(...args) {
       clearNote(this);
+      this.nfFallbackToken = (this.nfFallbackToken || 0) + 1;
       this.nfFallbackState = null;
       return base.cleanup.apply(this, args);
     }

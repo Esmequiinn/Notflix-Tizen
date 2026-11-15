@@ -3440,8 +3440,6 @@ html.notflix-ui body {
   border-top-color: #e50914;
   border-radius: 50%;
   will-change: transform;
-  transform: translateZ(0);
-  animation: nf-ld-spin 0.9s linear infinite;
 }
 
 .notflix-ui .nf-ld-pct {
@@ -3460,15 +3458,6 @@ html.notflix-ui body {
   margin-top: 28px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 22px;
-}
-
-@keyframes nf-ld-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .notflix-ui .nf-player.controls-visible .player-parental-guide {

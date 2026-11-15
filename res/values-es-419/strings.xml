@@ -3506,6 +3506,7 @@
     <string name="notflix_av_subtitles">Subtítulos</string>
     <string name="notflix_pick_profile">Elige un perfil</string>
     <string name="notflix_fallback_trying">Probando otra fuente (%1$d/%2$d)</string>
+    <string name="notflix_fallback_searching">Buscando otra fuente</string>
     <string name="notflix_ap_quality_uhd_first">4K → 1080p → resto</string>
     <string name="notflix_ap_quality_fhd_first">1080p → 4K → resto</string>
     <string name="notflix_ap_quality_fhd_only">1080p → resto (sin 4K)</string>
