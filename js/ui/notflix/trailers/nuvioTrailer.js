@@ -2,7 +2,10 @@ import { applyTrailerAudioPreferences } from "../../screens/home/homeScreenHelpe
 import { Router } from "../../navigation/routerState.js";
 import { buildTrailerProxyEmbed } from "./trailerProxy.js";
 
-const CONTENT_WAIT_MS = 45000;
+const CONTENT_WAIT_MS = 30000;
+const CUSTOM_WAIT_MS = 10000;
+const CUSTOM_FAILURE_LIMIT = 2;
+let customFailures = 0;
 const MIN_CONTENT_SECONDS = 0.35;
 const guards = new WeakMap();
 
@@ -45,7 +48,7 @@ function stopGuard(layer) {
   clearTimeout(guard.timer);
 }
 
-function guardAds(layer, { muted, volumeControl, onReady, onFail }) {
+function guardAds(layer, { muted, volumeControl, waitMs = CONTENT_WAIT_MS, onReady, onFail }) {
   let revealed = false;
   let lastTime = -1;
   let duration = 0;
@@ -123,7 +126,7 @@ function guardAds(layer, { muted, volumeControl, onReady, onFail }) {
   };
   const timer = setTimeout(() => {
     if (!revealed) fail();
-  }, CONTENT_WAIT_MS);
+  }, waitMs);
   guards.set(layer, { listener, timer });
   window.addEventListener("message", listener);
 }
@@ -145,12 +148,40 @@ export function mountNuvioTrailer(
   layer.className = "home-poster-trailer-layer nf-xp-trailer";
   parent.insertBefore(layer, beforeNode && beforeNode.parentNode === parent ? beforeNode : null);
   if (isYoutube) {
-    const customEmbed = muted ? "" : buildTrailerProxyEmbed(source.ytId);
-    const finalSource = customEmbed
-      ? { ...prepared, embedUrl: customEmbed, muted: false }
-      : prepared;
-    guardAds(layer, { muted, volumeControl: Boolean(customEmbed), onReady, onFail });
-    home.mountTrailerLayer.call(home, layer, finalSource, () => {});
+    const customEmbed =
+      muted || customFailures >= CUSTOM_FAILURE_LIMIT ? "" : buildTrailerProxyEmbed(source.ytId);
+    const mountStandard = () => {
+      guardAds(layer, { muted, volumeControl: false, onReady, onFail });
+      home.mountTrailerLayer.call(home, layer, prepared, () => {});
+      coverFrame(layer);
+    };
+    if (!customEmbed) {
+      mountStandard();
+      return layer;
+    }
+    guardAds(layer, {
+      muted,
+      volumeControl: true,
+      waitMs: CUSTOM_WAIT_MS,
+      onReady: () => {
+        customFailures = 0;
+        onReady?.();
+      },
+      onFail: () => {
+        customFailures += 1;
+        if (!layer.isConnected) return;
+        try {
+          home.clearTrailerLayer?.call(home, layer);
+        } catch (_) {}
+        mountStandard();
+      }
+    });
+    home.mountTrailerLayer.call(
+      home,
+      layer,
+      { ...prepared, embedUrl: customEmbed, muted: false },
+      () => {}
+    );
     coverFrame(layer);
   } else {
     home.mountTrailerLayer.call(home, layer, prepared, () => {

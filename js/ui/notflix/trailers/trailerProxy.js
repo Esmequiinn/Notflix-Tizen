@@ -50,11 +50,6 @@ export function getTrailerProxyUrl() {
 export function buildTrailerProxyEmbed(ytId) {
   const base = getTrailerProxyUrl();
   if (!base || !ytId) return "";
-  const params = [
-    `v=${encodeURIComponent(ytId)}`,
-    "nfvol=0",
-    "loop=1",
-    `_cb=${Date.now().toString(36)}`
-  ];
+  const params = [`v=${encodeURIComponent(ytId)}`, "nfvol=0", "loop=1"];
   return `${base}?${params.join("&")}`;
 }
