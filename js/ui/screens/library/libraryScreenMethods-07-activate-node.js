@@ -41,6 +41,7 @@ export function createLibraryScreenMethods07() {
         action === "gotoLibrary" ||
         action === "gotoPlugin" ||
         action === "gotoSettings" ||
+        action === "gotoCalendar" ||
         action === "gotoAccount"
       ) {
         activateLegacySidebarAction(action, "library");

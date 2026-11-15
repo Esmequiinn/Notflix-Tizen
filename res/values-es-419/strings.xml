@@ -3507,6 +3507,8 @@
     <string name="notflix_pick_profile">Elige un perfil</string>
     <string name="notflix_fallback_trying">Probando otra fuente (%1$d/%2$d)</string>
     <string name="notflix_kind_movie">Película</string>
+    <string name="notflix_my_list_movies">Películas</string>
+    <string name="notflix_my_list_series">Series</string>
     <string name="notflix_kind_series">Serie</string>
     <string name="notflix_fallback_searching">Buscando otra fuente</string>
     <string name="notflix_ap_quality_uhd_first">4K → 1080p → resto</string>

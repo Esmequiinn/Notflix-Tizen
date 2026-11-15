@@ -1,6 +1,6 @@
 import { escapeText, extractYear, nt } from "./notflixHomeMarkup.js";
 
-const ROW_SELECTOR = ".home-row-continue, .home-row";
+const ROW_SELECTOR = ".home-row-continue, .home-row, .nf-ml-row";
 const INFO_WIDTH = 1100;
 const EDGE = 68;
 const INFO_GAP = 4;

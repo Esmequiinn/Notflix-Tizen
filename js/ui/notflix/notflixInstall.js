@@ -12,6 +12,8 @@ import { withNotflixPlayer } from "./playback/notflixPlayerFallback.js";
 import { withNotflixPlayerUi } from "./playback/notflixPlayerUi.js";
 import { startTrailerProxyProbe } from "./trailers/trailerProxy.js";
 import { CalendarScreen } from "./calendar/calendarScreen.js";
+import { LibraryScreen } from "../screens/library/libraryScreen.js";
+import { withNotflixLibrary } from "./library/notflixMyList.js";
 import { isNotflixActive } from "./notflixAppearance.js";
 import { isNotflixTitleVisible } from "./profiles/titleVisibility.js";
 import { installUiSoundKeys } from "./notflixSounds.js";
@@ -35,6 +37,7 @@ export function installNotflix() {
   patch(ProfileSelectionScreen, withNotflixProfiles);
   patch(PlayerScreen, withNotflixPlayer);
   patch(PlayerScreen, withNotflixPlayerUi);
+  patch(LibraryScreen, withNotflixLibrary);
   SearchScreen.nfTitleVisible = (type, id) => !isNotflixActive() || isNotflixTitleVisible(type, id);
   void startTrailerProxyProbe();
   try {
