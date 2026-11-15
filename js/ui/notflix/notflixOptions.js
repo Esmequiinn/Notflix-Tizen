@@ -18,7 +18,7 @@ const DEFAULTS = Object.freeze({
   introEnabled: false,
   introSound: true,
   previewEnabled: true,
-  previewSound: false,
+  previewSound: true,
   uiSounds: false,
   wikipediaEnabled: true
 });
@@ -38,13 +38,19 @@ function readAll() {
   let migrated = false;
   Object.keys(cache).forEach((id) => {
     const entry = cache[id];
-    if (!entry || typeof entry !== "object" || entry.sizeVersion === 2) return;
-    cache[id] = {
-      ...entry,
-      sizeVersion: 2,
-      cardSize: entry.cardSize === "tiny" ? "medium" : entry.cardSize
-    };
-    migrated = true;
+    if (!entry || typeof entry !== "object") return;
+    if (entry.sizeVersion !== 2) {
+      cache[id] = {
+        ...entry,
+        sizeVersion: 2,
+        cardSize: entry.cardSize === "tiny" ? "medium" : entry.cardSize
+      };
+      migrated = true;
+    }
+    if (cache[id].soundVersion !== 1) {
+      cache[id] = { ...cache[id], soundVersion: 1, previewSound: true };
+      migrated = true;
+    }
   });
   if (migrated) LocalStore.set(STORE_KEY, cache);
   return cache;
@@ -79,7 +85,7 @@ export function setNotflixOption(key, value) {
   if (!(key in DEFAULTS)) return getNotflixOptions();
   const all = { ...readAll() };
   const id = profileKey();
-  all[id] = { ...sanitize({ ...all[id], [key]: value }), sizeVersion: 2 };
+  all[id] = { ...sanitize({ ...all[id], [key]: value }), sizeVersion: 2, soundVersion: 1 };
   cache = all;
   LocalStore.set(STORE_KEY, all);
   listeners.forEach((listener) => {

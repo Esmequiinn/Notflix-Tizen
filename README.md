@@ -2,7 +2,7 @@
 
 A Netflix-style interface for [Nuvio TV](https://github.com/NuvioMedia/NuvioTVSmart) on Samsung Smart TVs.
 
-**Version 0.0.1**
+**Version 0.0.2**
 
 ## Compatibility
 

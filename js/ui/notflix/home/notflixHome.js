@@ -727,6 +727,7 @@ export function withNotflixHome(base) {
       return result;
     },
     focusNode(current, target, direction, inputMeta) {
+      if (active(this) && this.nfCwCard && this.nfCwCard !== target) collapseContinueCard(this);
       const moved = base.focusNode.call(this, current, target, direction, inputMeta);
       if (moved) onNotflixFocus(this, target);
       return moved;

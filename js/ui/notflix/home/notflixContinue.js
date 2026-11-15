@@ -80,8 +80,29 @@ function clearTimer(screen) {
   }
 }
 
+function rowOf(card) {
+  return card?.closest?.(".home-row-continue") || card?.closest?.(".home-row") || null;
+}
+
+function openRow(screen, card, info) {
+  const row = rowOf(card);
+  if (!row) return;
+  row.style.paddingBottom = `${Math.ceil(info.offsetHeight + 10)}px`;
+  row.classList.add("nf-cw-row-open");
+  screen.nfCwRow = row;
+}
+
+function closeRow(screen) {
+  const row = screen.nfCwRow;
+  screen.nfCwRow = null;
+  if (!row) return;
+  row.style.paddingBottom = "";
+  row.classList.remove("nf-cw-row-open");
+}
+
 export function collapseContinueCard(screen) {
   clearTimer(screen);
+  closeRow(screen);
   const card = screen.nfCwCard;
   screen.nfCwCard = null;
   if (screen.nfCwInfo) {
@@ -121,6 +142,7 @@ function expand(screen, card) {
     info.innerHTML = markup;
     (screen.container || document.body).appendChild(info);
     screen.nfCwInfo = info;
+    openRow(screen, card, info);
     const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
     frame(() => {
       placeInfo(screen);
