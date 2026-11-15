@@ -239,7 +239,9 @@ export function renderLegacyCatalogRowsMarkup(rows = [], options = {}) {
     rowItemLimit = HOME_MAX_ITEMS_PER_ROW_DEFAULT,
     gridMaxDisplayItems = HOME_GRID_SAFE_MAX_COLUMNS * HOME_GRID_DEFAULT_ROW_COUNT,
     watchedTitleIds = null,
-    posterSettings = null
+    posterSettings = null,
+    rowItemCounts = null,
+    hideSeeAll = false
   } = options;
   const catalogSeeAllMap = new Map();
   const sectionsMarkup = [];
@@ -278,8 +280,14 @@ export function renderLegacyCatalogRowsMarkup(rows = [], options = {}) {
       ? String(rowData.collectionTitle || rowData.collection?.title || "Collection")
       : formatCatalogRowTitle(rowData.catalogName, rowData.type, showCatalogTypeSuffix);
     const rowSubtitle = layoutMode === "classic" && showCatalogAddonName && rowData.addonName ? `from ${rowData.addonName}` : "";
-    const maxItems = Math.max(1, Number(layoutMode === "grid" ? gridMaxDisplayItems : rowItemLimit || HOME_MAX_ITEMS_PER_ROW_DEFAULT));
+    const extendedCount = layoutMode === "grid" ? 0 : Number(rowItemCounts?.[rowKey] || 0);
+    const maxItems = Math.max(
+      1,
+      extendedCount,
+      Number(layoutMode === "grid" ? gridMaxDisplayItems : rowItemLimit || HOME_MAX_ITEMS_PER_ROW_DEFAULT)
+    );
     const hasSeeAll =
+      !hideSeeAll &&
       !isCollectionRow &&
       !isLoading &&
       (layoutMode === "grid"

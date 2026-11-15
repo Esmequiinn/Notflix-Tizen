@@ -244,7 +244,9 @@ export function createHomeScreenMethods23() {
           expandFocusedPoster: false,
           rowItemLimit: classicCatalogRowItemLimit,
           gridMaxDisplayItems,
-          watchedTitleIds: this.watchedTitleIds
+          watchedTitleIds: this.watchedTitleIds,
+          rowItemCounts: this.nfRowItemCounts || null,
+          hideSeeAll: Boolean(this.nfHideSeeAll)
         });
         this.catalogSeeAllMap = legacyRowsPayload.catalogSeeAllMap;
         mainContentMarkup = `

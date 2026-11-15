@@ -10,7 +10,7 @@ import { playUiSound } from "../notflixSounds.js";
 import { playTrailerChain } from "../trailers/trailerChain.js";
 import { clearNuvioTrailer, mountNuvioTrailer } from "../trailers/nuvioTrailer.js";
 import { stopPreview } from "../trailers/previewPlayer.js";
-import { hideTitle, isHiddenTitle } from "../profiles/hiddenTitles.js";
+import { isHiddenTitle } from "../profiles/hiddenTitles.js";
 import {
   cachedAge,
   canResolveAges,
@@ -19,22 +19,18 @@ import {
   resolveAges
 } from "../profiles/ageGate.js";
 import { localizedDetails } from "./notflixLocalize.js";
-import { isMdbListActive, loadRatings } from "../ratings/notflixRatings.js";
 import { clearHold, handleHoldRepeat, shortPressEvent, withHoldGuard } from "../input/holdGuard.js";
 import { isCollectionFolderItem } from "../../screens/home/homeScreenHelpers-04-animate-hero-logo-swap.js";
-import { collapseContinueCard, isContinueCard, scheduleContinueExpand } from "./notflixContinue.js";
-import { localizeHero, noteHeroActivity, scheduleHeroIdle, stopHeroLoop } from "./notflixHero.js";
-import { savedLibraryRepository } from "../../../data/repository/savedLibraryRepository.js";
-import { watchedItemsRepository } from "../../../data/repository/watchedItemsRepository.js";
 import {
-  CARD_ACTIONS,
-  billboardMarkup,
-  cardActionLabel,
-  cardActionsMarkup,
-  escapeText,
-  expandedArtMarkup,
-  expandedInfoMarkup
-} from "./notflixHomeMarkup.js";
+  collapseContinueCard,
+  continueInfoMarkup,
+  isContinueCard,
+  scheduleContinueExpand
+} from "./notflixContinue.js";
+import { activateRow, rowInfoMarkup, scheduleRowReveal, setRowInfo } from "./notflixRowInfo.js";
+import { extendRowIfNeeded } from "./notflixRowMore.js";
+import { localizeHero, noteHeroActivity, scheduleHeroIdle, stopHeroLoop } from "./notflixHero.js";
+import { billboardMarkup, escapeText, expandedArtMarkup } from "./notflixHomeMarkup.js";
 
 const POSTER_W = 420;
 const POSTER_H = 622;
@@ -43,7 +39,6 @@ const CW_W = 496;
 const CW_H = 280;
 
 const KEY_LEFT = 37;
-const KEY_UP = 38;
 const KEY_RIGHT = 39;
 const KEY_DOWN = 40;
 const KEY_ENTER = 13;
@@ -87,7 +82,7 @@ export function renderNotflixBillboard(screen) {
   if (!item) return;
   const candidates = Array.isArray(screen.heroCandidates) ? screen.heroCandidates : [];
   const index = Math.max(0, Number(screen.heroIndex || 0));
-  const signature = `${item.id}|${item.logo || ""}|${String(item.description || "").length}|${item.imdbRating || ""}|${item.nfRatings ? 1 : 0}|${index}|${candidates.length}`;
+  const signature = `${item.id}|${item.logo || ""}|${String(item.description || "").length}|${index}|${candidates.length}`;
   let host = node.querySelector(".nf-bb");
   if (!host) {
     host = document.createElement("div");
@@ -123,16 +118,6 @@ function enrichHero(screen) {
   const item = screen.heroItem;
   if (!item) return;
   localizeHero(screen, () => renderNotflixBillboard(screen));
-  if (!item.nfRatings && !item.nfRatingsTried && isMdbListActive()) {
-    item.nfRatingsTried = true;
-    const id = String(item.id || "");
-    void loadRatings(item).then((ratings) => {
-      const current = screen.heroItem;
-      if (!ratings || String(current?.id || "") !== id) return;
-      current.nfRatings = ratings;
-      renderNotflixBillboard(screen);
-    });
-  }
 }
 
 function syncBillboardCursor(screen) {
@@ -252,72 +237,70 @@ export function collapseNotflixCard(screen) {
   stopCardPreview(screen);
   const card = screen.nfExpandedCard;
   screen.nfExpandedCard = null;
-  screen.nfCardCursor = null;
-  screen.nfCardState = null;
   screen.nfCardToken = (screen.nfCardToken || 0) + 1;
-  if (screen.nfInfoPanel) {
-    screen.nfInfoPanel.remove();
-    screen.nfInfoPanel = null;
-  }
   if (card) {
-    card.classList.remove("nf-expanded", "nf-actions-active", "nf-previewing");
+    card.classList.remove("nf-expanded", "nf-previewing");
     card.querySelector(".nf-xp")?.remove();
   }
 }
 
-async function loadCardState(screen, card, item) {
-  const id = String(item?.id || "");
-  if (!id) return;
-  const [saved, watched] = await Promise.all([
-    savedLibraryRepository.isSaved(id).catch(() => false),
-    watchedItemsRepository.isWatched(id).catch(() => false)
-  ]);
-  if (screen.nfExpandedCard !== card) return;
-  screen.nfCardState = {
-    ...(screen.nfCardState || {}),
-    saved: Boolean(saved),
-    watched: Boolean(watched)
-  };
-  renderCardActions(screen);
+function clearDetailsTimer(screen) {
+  if (screen.nfDetailsTimer) {
+    clearTimeout(screen.nfDetailsTimer);
+    screen.nfDetailsTimer = null;
+  }
 }
 
-function renderCardActions(screen) {
-  const card = screen.nfExpandedCard;
-  const panel = screen.nfInfoPanel;
-  if (!card || !panel) return;
-  const state = screen.nfCardState || {};
-  const cursor = screen.nfCardCursor == null ? -1 : screen.nfCardCursor;
-  const actions = panel.querySelector(".nf-xp-actions");
-  if (actions) actions.innerHTML = cardActionsMarkup(state, cursor);
-  const label = panel.querySelector(".nf-xp-label");
-  if (label) label.textContent = cursor >= 0 ? cardActionLabel(CARD_ACTIONS[cursor], state) : "";
-  panel.classList.toggle("nf-actions-active", cursor >= 0);
-  card.classList.toggle("nf-actions-active", cursor >= 0);
+function cardItem(screen, card) {
+  const cached = screen.nfCardItems?.get?.(card);
+  if (cached) return cached;
+  const item = screen.getNodeHeroSource?.(card) || null;
+  if (item) {
+    if (!screen.nfCardItems) screen.nfCardItems = new WeakMap();
+    screen.nfCardItems.set(card, item);
+  }
+  return item;
 }
 
-function renderInfoPanel(screen) {
-  const card = screen.nfExpandedCard;
-  const panel = screen.nfInfoPanel;
-  if (!card || !panel) return;
-  panel.innerHTML = expandedInfoMarkup(screen.nfCardItem, screen.nfCardState || {});
-  renderCardActions(screen);
-  placeInfoPanel(screen);
+function rememberDetails(screen, card, details) {
+  if (!details) return null;
+  const item = { ...(cardItem(screen, card) || {}), ...details };
+  if (!screen.nfCardItems) screen.nfCardItems = new WeakMap();
+  screen.nfCardItems.set(card, item);
+  return item;
 }
 
-function placeInfoPanel(screen) {
-  const card = screen.nfExpandedCard;
-  const panel = screen.nfInfoPanel;
-  if (!card || !panel) return;
-  const rect = card.getBoundingClientRect();
-  const viewportH = globalThis.innerHeight || 1080;
-  panel.style.left = `${Math.round(rect.left)}px`;
-  panel.style.width = `${Math.round(rect.width)}px`;
-  const height = panel.offsetHeight;
-  const below = rect.bottom - 4;
-  const fitsBelow = below + height <= viewportH - 12;
-  panel.style.top = `${Math.round(fitsBelow ? below : rect.bottom - height)}px`;
-  panel.classList.toggle("is-overlay", !fitsBelow);
-  card.classList.toggle("nf-info-below", fitsBelow);
+function showCardInfo(screen, card) {
+  const item = cardItem(screen, card);
+  setRowInfo(screen, card, rowInfoMarkup(item));
+  clearDetailsTimer(screen);
+  if (!item || item.nfDetailsLoaded) return;
+  screen.nfDetailsTimer = setTimeout(() => {
+    screen.nfDetailsTimer = null;
+    void localizedDetails(item).then((details) => {
+      const merged = rememberDetails(screen, card, { ...(details || {}), nfDetailsLoaded: true });
+      if (!merged || screen.nfRowInfoCard !== card) return;
+      setRowInfo(screen, card, rowInfoMarkup(merged));
+      if (screen.nfExpandedCard === card) applyLocalizedDetails(screen, card, details);
+    });
+  }, 320);
+}
+
+function syncRowInfo(screen, target) {
+  if (isContinueCard(target)) {
+    activateRow(screen, target);
+    setRowInfo(screen, target, continueInfoMarkup(screen, target));
+    scheduleRowReveal(screen);
+    return;
+  }
+  if (isExpandableCard(target)) {
+    activateRow(screen, target);
+    showCardInfo(screen, target);
+    scheduleRowReveal(screen);
+    return;
+  }
+  clearDetailsTimer(screen);
+  activateRow(screen, null);
 }
 
 function applyLocalizedDetails(screen, card, details) {
@@ -328,36 +311,20 @@ function applyLocalizedDetails(screen, card, details) {
     if (brand)
       brand.innerHTML = `<img class="nf-xp-logo" src="${escapeText(details.logo)}" alt="" decoding="async" />`;
   }
-  renderInfoPanel(screen);
 }
 
 function expandCard(screen, card) {
   if (!card?.isConnected || !card.classList.contains("focused")) return;
-  const item = screen.getNodeHeroSource?.(card);
+  const item = cardItem(screen, card);
   if (!item) return;
   collapseNotflixCard(screen);
   screen.nfExpandedCard = card;
-  screen.nfCardState = { saved: false, watched: false };
   screen.nfCardItem = item;
   card.insertAdjacentHTML("beforeend", expandedArtMarkup(item));
   card.classList.add("nf-expanded");
   screen.ensureTrackHorizontalVisibility?.(card, "right", 0);
-  const panel = document.createElement("div");
-  panel.className = "nf-xp-float";
-  (screen.container || document.body).appendChild(panel);
-  screen.nfInfoPanel = panel;
-  renderInfoPanel(screen);
-  const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
-  frame(() => placeInfoPanel(screen));
-  void loadCardState(screen, card, item);
+  if (screen.nfRowInfoCard === card) setRowInfo(screen, card, rowInfoMarkup(item));
   void localizedDetails(item).then((details) => applyLocalizedDetails(screen, card, details));
-  if (isMdbListActive()) {
-    void loadRatings(item).then((ratings) => {
-      if (!ratings || screen.nfExpandedCard !== card) return;
-      screen.nfCardItem = { ...screen.nfCardItem, nfRatings: ratings };
-      renderInfoPanel(screen);
-    });
-  }
   scheduleCardPreview(screen, card, item);
 }
 
@@ -388,7 +355,9 @@ export function onNotflixFocus(screen, target) {
     shell.classList.toggle("nf-scrolled", !isHero(target));
   }
   syncBillboardCursor(screen);
+  syncRowInfo(screen, target);
   if (isExpandableCard(target)) {
+    extendRowIfNeeded(screen, target, allowedItem);
     scheduleExpand(screen, target);
   }
 }
@@ -409,51 +378,6 @@ function playItem(screen, item, node) {
     catalogType: item.catalogType || item.type || "movie",
     playOnLoad: true
   });
-}
-
-async function activateCardAction(screen, card, action) {
-  const item = screen.nfCardItem || screen.getNodeHeroSource?.(card);
-  if (!item) return;
-  if (action === "play") {
-    playItem(screen, item, card);
-    return;
-  }
-  if (action === "details") {
-    playUiSound("confirm");
-    screen.openDetailFromNode(card);
-    return;
-  }
-  const posterItem = screen.getPosterItemFromNode?.(card) || item;
-  if (action === "library") {
-    playUiSound("confirm");
-    await screen.togglePosterLibrary?.(posterItem);
-    const saved = await savedLibraryRepository
-      .isSaved(String(item.id))
-      .catch(() => !screen.nfCardState?.saved);
-    if (screen.nfExpandedCard === card) {
-      screen.nfCardState = { ...(screen.nfCardState || {}), saved: Boolean(saved) };
-      renderCardActions(screen);
-    }
-    return;
-  }
-  if (action === "hide") {
-    playUiSound("confirm");
-    hideTitle(item.type, item.id, item.name, item.poster);
-    collapseNotflixCard(screen);
-    screen.render();
-    return;
-  }
-  if (action === "watched") {
-    playUiSound("confirm");
-    await screen.togglePosterWatched?.(posterItem);
-    const watched = await watchedItemsRepository
-      .isWatched(String(item.id))
-      .catch(() => !screen.nfCardState?.watched);
-    if (screen.nfExpandedCard === card) {
-      screen.nfCardState = { ...(screen.nfCardState || {}), watched: Boolean(watched) };
-      renderCardActions(screen);
-    }
-  }
 }
 
 function handleHeroKey(screen, node, code, event) {
@@ -495,39 +419,8 @@ function handleHeroKey(screen, node, code, event) {
   return false;
 }
 
-function handleExpandedCardKey(screen, card, code, event) {
+function handleExpandedCardKey(screen) {
   restartCardPreviewIdle(screen);
-  const inActions = screen.nfCardCursor != null;
-  if (!inActions) {
-    if (code === KEY_DOWN && !event?.repeat) {
-      screen.nfCardCursor = 0;
-      playUiSound("move");
-      renderCardActions(screen);
-      return true;
-    }
-    return false;
-  }
-  if (code === KEY_LEFT || code === KEY_RIGHT) {
-    const step = code === KEY_RIGHT ? 1 : -1;
-    const next = Math.max(0, Math.min(CARD_ACTIONS.length - 1, screen.nfCardCursor + step));
-    if (next !== screen.nfCardCursor) playUiSound("move");
-    screen.nfCardCursor = next;
-    renderCardActions(screen);
-    return true;
-  }
-  if (code === KEY_UP) {
-    screen.nfCardCursor = null;
-    renderCardActions(screen);
-    return true;
-  }
-  if (code === KEY_DOWN) {
-    collapseNotflixCard(screen);
-    return false;
-  }
-  if (code === KEY_ENTER) {
-    if (!event?.repeat) void activateCardAction(screen, card, CARD_ACTIONS[screen.nfCardCursor]);
-    return true;
-  }
   return false;
 }
 
@@ -543,7 +436,7 @@ export function handleNotflixHomeKey(screen, event) {
     return handled;
   }
   if (screen.nfExpandedCard === current) {
-    const handled = handleExpandedCardKey(screen, current, code, event);
+    const handled = handleExpandedCardKey(screen);
     if (handled) event?.preventDefault?.();
     return handled;
   }
@@ -559,11 +452,6 @@ export function handleNotflixHomeKey(screen, event) {
 
 export function consumeNotflixBack(screen) {
   if (!active(screen)) return false;
-  if (screen.nfExpandedCard && screen.nfCardCursor != null) {
-    screen.nfCardCursor = null;
-    renderCardActions(screen);
-    return true;
-  }
   if (screen.nfExpandedCard) {
     collapseNotflixCard(screen);
     return true;
@@ -579,13 +467,14 @@ export function afterNotflixRender(screen) {
   if (!active(screen)) return;
   if (screen.nfExpandedCard && !screen.nfExpandedCard.isConnected) {
     screen.nfExpandedCard = null;
-    screen.nfCardCursor = null;
   }
   if (screen.nfCwCard && !screen.nfCwCard.isConnected) collapseContinueCard(screen);
   applyNotflixSizing(screen);
   renderNotflixBillboard(screen);
   scheduleIdleWork(screen);
   const focused = screen.getCurrentFocusedNode?.();
+  if (screen.nfActiveRow && !screen.nfActiveRow.isConnected) screen.nfActiveRow = null;
+  if (focused && screen.isMainNode?.(focused)) syncRowInfo(screen, focused);
   if (focused && isExpandableCard(focused) && screen.nfExpandedCard !== focused) {
     scheduleExpand(screen, focused);
   }
@@ -607,6 +496,8 @@ export function cleanupNotflixHome(screen) {
   }
   collapseNotflixCard(screen);
   collapseContinueCard(screen);
+  clearDetailsTimer(screen);
+  activateRow(screen, null);
   stopHeroLoop(screen);
 }
 
@@ -716,6 +607,7 @@ export function withNotflixHome(base) {
       return result;
     },
     render(...args) {
+      this.nfHideSeeAll = active(this);
       if (active(this)) filterHiddenRows(this);
       const result = base.render.apply(this, args);
       afterNotflixRender(this);
@@ -727,7 +619,11 @@ export function withNotflixHome(base) {
       return result;
     },
     focusNode(current, target, direction, inputMeta) {
-      if (active(this) && this.nfCwCard && this.nfCwCard !== target) collapseContinueCard(this);
+      if (active(this) && target) {
+        if (this.nfCwCard && this.nfCwCard !== target) collapseContinueCard(this);
+        if (this.nfExpandedCard && this.nfExpandedCard !== target) collapseNotflixCard(this);
+        activateRow(this, isContinueCard(target) || isExpandableCard(target) ? target : null);
+      }
       const moved = base.focusNode.call(this, current, target, direction, inputMeta);
       if (moved) onNotflixFocus(this, target);
       return moved;

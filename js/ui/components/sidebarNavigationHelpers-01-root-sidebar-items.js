@@ -76,8 +76,10 @@ export function sidebarItems(layout = {}) {
     return base;
   }
   const notflixBase = base.filter((item) => item.route !== "discover");
-  const settingsIndex = notflixBase.findIndex((item) => item.route === "settings");
-  return [...notflixBase.slice(0, settingsIndex), CALENDAR_SIDEBAR_ITEM, ...notflixBase.slice(settingsIndex)];
+  const search = notflixBase.filter((item) => item.route === "search");
+  const rest = notflixBase.filter((item) => item.route !== "search");
+  const settingsIndex = rest.findIndex((item) => item.route === "settings");
+  return [...search, ...rest.slice(0, settingsIndex), CALENDAR_SIDEBAR_ITEM, ...rest.slice(settingsIndex)];
 }
 
 export const sidebarAvatarCatalogPromises = new Map();

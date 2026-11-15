@@ -60,17 +60,16 @@ function artMarkup(item) {
   `;
 }
 
-function infoMarkup(item) {
+export function continueInfoMarkup(screen, card) {
+  const item = cwItem(screen, card);
+  if (!item) return "";
   const code = episodeLabel(item);
   const episodeTitle = String(item?.episodeTitle || "");
-  const head = [code, episodeTitle].filter(Boolean).join(" • ");
+  const head = [code, episodeTitle].filter(Boolean).join(" • ") || String(item?.title || "");
   const remaining = formatRemaining(item);
   const second = remaining || (item?.isNextUp ? nt("notflix_cw_next_up", "Next episode") : "");
   if (!head && !second) return "";
-  return `
-    ${head ? `<div class="nf-cw-info-head">${escapeText(head)}</div>` : `<div class="nf-cw-info-head">${escapeText(item?.title || "")}</div>`}
-    ${second ? `<div class="nf-cw-info-sub">${escapeText(second)}</div>` : ""}
-  `;
+  return `${head ? `<div class="nf-cw-info-head">${escapeText(head)}</div>` : ""}${second ? `<div class="nf-cw-info-sub">${escapeText(second)}</div>` : ""}`;
 }
 
 function clearTimer(screen) {
@@ -80,49 +79,14 @@ function clearTimer(screen) {
   }
 }
 
-function rowOf(card) {
-  return card?.closest?.(".home-row-continue") || card?.closest?.(".home-row") || null;
-}
-
-function openRow(screen, card, info) {
-  const row = rowOf(card);
-  if (!row) return;
-  row.style.paddingBottom = `${Math.ceil(info.offsetHeight + 10)}px`;
-  row.classList.add("nf-cw-row-open");
-  screen.nfCwRow = row;
-}
-
-function closeRow(screen) {
-  const row = screen.nfCwRow;
-  screen.nfCwRow = null;
-  if (!row) return;
-  row.style.paddingBottom = "";
-  row.classList.remove("nf-cw-row-open");
-}
-
 export function collapseContinueCard(screen) {
   clearTimer(screen);
-  closeRow(screen);
   const card = screen.nfCwCard;
   screen.nfCwCard = null;
-  if (screen.nfCwInfo) {
-    screen.nfCwInfo.remove();
-    screen.nfCwInfo = null;
-  }
   if (card) {
     card.classList.remove("nf-cw-expanded");
     card.querySelector(".nf-cw-xp")?.remove();
   }
-}
-
-function placeInfo(screen) {
-  const card = screen.nfCwCard;
-  const info = screen.nfCwInfo;
-  if (!card || !info) return;
-  const rect = card.getBoundingClientRect();
-  info.style.left = `${Math.round(rect.left)}px`;
-  info.style.width = `${Math.round(rect.width)}px`;
-  info.style.top = `${Math.round(rect.bottom + 10)}px`;
 }
 
 function expand(screen, card) {
@@ -135,39 +99,6 @@ function expand(screen, card) {
   media.insertAdjacentHTML("beforeend", artMarkup(item));
   card.classList.add("nf-cw-expanded");
   screen.ensureTrackHorizontalVisibility?.(card, "right", 0);
-  const markup = infoMarkup(item);
-  if (markup) {
-    const info = document.createElement("div");
-    info.className = "nf-cw-info";
-    info.innerHTML = markup;
-    (screen.container || document.body).appendChild(info);
-    screen.nfCwInfo = info;
-    openRow(screen, card, info);
-    const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
-    frame(() => {
-      placeInfo(screen);
-      revealInfo(screen, card, info);
-    });
-  }
-}
-
-function revealInfo(screen, card, info) {
-  if (screen.nfCwCard !== card) return;
-  const main = screen.container?.querySelector(".home-main");
-  if (!main) return;
-  const rect = card.getBoundingClientRect();
-  const bottom = rect.bottom + 10 + info.offsetHeight;
-  const limit = (globalThis.innerHeight || 1080) - 24;
-  if (bottom <= limit) return;
-  const target = main.scrollTop + (bottom - limit);
-  if (typeof screen.animateScroll === "function") {
-    screen.animateScroll(main, "y", target, 180);
-  } else {
-    main.scrollTop = target;
-  }
-  setTimeout(() => {
-    if (screen.nfCwCard === card) placeInfo(screen);
-  }, 240);
 }
 
 export function scheduleContinueExpand(screen, card) {

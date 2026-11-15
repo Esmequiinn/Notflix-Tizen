@@ -36,6 +36,9 @@ export function localizedDetails(item) {
       if (data.localizedTitle) details.name = data.localizedTitle;
     }
     if (settings.useArtwork !== false && data.logo) details.logo = data.logo;
+    if (data.ageRating) details.ageRating = String(data.ageRating);
+    const minutes = Number(String(data.runtime || "").replace(/\D+/g, ""));
+    if (minutes > 0) details.runtimeMinutes = minutes;
     return Object.keys(details).length ? details : null;
   })().catch(() => null);
   return remember(key, promise);

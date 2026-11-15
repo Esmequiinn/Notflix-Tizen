@@ -113,21 +113,19 @@ export function renderLegacySidebar({ selectedRoute = "home", profile = null, la
   const collapsible = Boolean(layout?.collapseSidebar);
   const performanceConstrained = getTvRuntimePerformanceProfile().isPerformanceConstrained;
   const topBar = isNotflixActive();
-  const itemOffset = showProfileSelector && !topBar ? 1 : 0;
-  const leadingPill = showProfileSelector && !topBar ? renderLegacyProfilePill(profileState, 0) : "";
-  const trailingPill = showProfileSelector && topBar ? renderLegacyProfilePill(profileState, items.length) : "";
+  const itemOffset = showProfileSelector ? 1 : 0;
+  const leadingPill = showProfileSelector ? renderLegacyProfilePill(profileState, 0) : "";
 
   return `
     <aside class="home-sidebar root-sidebar root-sidebar-legacy${topBar ? " notflix-topbar" : ""}${expanded ? " expanded content-expanded" : ""}${performanceConstrained ? " performance-constrained" : ""}"
            data-selected-route="${selectedRoute}"
            data-collapsible="${collapsible ? "true" : "false"}">
-      ${topBar ? '<span class="nf-wordmark" aria-label="NOTFLIX"></span>' : ""}
       ${leadingPill}
       <div class="home-nav-list">
         ${items
           .map(
             (item, index) => `
-          <button class="home-nav-item focusable${selectedItem.action === item.action ? " selected" : ""}"
+          <button class="home-nav-item focusable${selectedItem.action === item.action ? " selected" : ""}${item.route === "search" ? " home-nav-item-search" : ""}"
                   data-nav-zone="sidebar"
                   data-nav-index="${index + itemOffset}"
                   data-action="${item.action}"
@@ -139,7 +137,7 @@ export function renderLegacySidebar({ selectedRoute = "home", profile = null, la
           )
           .join("")}
       </div>
-      ${trailingPill}
+      ${topBar ? '<span class="nf-wordmark" aria-label="NOTFLIX"></span>' : ""}
     </aside>
   `;
 }
