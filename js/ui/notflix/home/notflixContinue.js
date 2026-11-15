@@ -104,7 +104,11 @@ function expand(screen, card) {
 export function scheduleContinueExpand(screen, card) {
   clearTimer(screen);
   if (getNotflixOptions().homeMotion === "reduced") return;
-  const delay = Math.max(MIN_IDLE_MS, getCardOpeningDelayMs() * 2);
+  const opening = getCardOpeningDelayMs();
+  const delay =
+    getNotflixOptions().cardOpening === "instant"
+      ? opening * 2
+      : Math.max(MIN_IDLE_MS, opening * 2);
   screen.nfCwTimer = setTimeout(() => {
     screen.nfCwTimer = null;
     if (Router.getCurrent?.() !== "home") return;

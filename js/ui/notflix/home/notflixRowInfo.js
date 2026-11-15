@@ -3,6 +3,7 @@ import { escapeText, extractYear, nt } from "./notflixHomeMarkup.js";
 const ROW_SELECTOR = ".home-row-continue, .home-row";
 const INFO_WIDTH = 1100;
 const EDGE = 68;
+const INFO_GAP = 4;
 
 export function rowOfNode(node) {
   return node?.closest?.(ROW_SELECTOR) || null;
@@ -29,6 +30,7 @@ export function activateRow(screen, node) {
   if (screen.nfActiveRow === row) return row;
   const previous = screen.nfActiveRow;
   if (previous) {
+    previous.style.paddingBottom = "";
     previous.classList.remove("nf-row-active");
     infoHost(previous, false)?.remove();
   }
@@ -41,13 +43,20 @@ export function activateRow(screen, node) {
 function alignInfo(screen, card, host) {
   const row = screen.nfActiveRow;
   if (!row || screen.nfRowInfoCard !== card) return;
-  const rowLeft = row.getBoundingClientRect().left;
+  const rowRect = row.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
   const viewport = globalThis.innerWidth || 1920;
   const width = Math.min(INFO_WIDTH, viewport - EDGE * 2);
-  const cardLeft = card.getBoundingClientRect().left;
-  const left = Math.max(EDGE, Math.min(cardLeft, viewport - EDGE - width));
+  const left = Math.max(EDGE, Math.min(cardRect.left, viewport - EDGE - width));
   host.style.width = `${Math.round(width)}px`;
-  host.style.left = `${Math.max(0, Math.round(left - rowLeft))}px`;
+  host.style.left = `${Math.max(0, Math.round(left - rowRect.left))}px`;
+  const top = Math.max(0, Math.round(cardRect.bottom - rowRect.top + INFO_GAP));
+  host.style.top = `${top}px`;
+  host.style.bottom = "auto";
+  const padding = parseFloat(row.style.paddingBottom) || 0;
+  const contentHeight = rowRect.height - padding;
+  const needed = Math.max(0, Math.ceil(top + host.offsetHeight - contentHeight));
+  if (Math.abs(needed - padding) > 1) row.style.paddingBottom = `${needed}px`;
 }
 
 export function setRowInfo(screen, card, markup) {

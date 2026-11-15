@@ -1783,14 +1783,6 @@ html.notflix-ui body {
   position: relative;
 }
 
-.notflix-ui .home-row-continue.nf-row-active {
-  padding-bottom: var(--nf-cw-info-space, 96px);
-}
-
-.notflix-ui .home-screen-shell .home-row.nf-row-active {
-  padding-bottom: var(--nf-info-space, 176px);
-}
-
 .notflix-ui .nf-row-info {
   position: absolute;
   bottom: 0;
@@ -1804,7 +1796,7 @@ html.notflix-ui body {
 }
 
 .notflix-ui .home-row-continue .nf-row-info {
-  height: var(--nf-cw-info-space, 96px);
+  height: var(--nf-cw-info-space, 124px);
 }
 
 .notflix-ui .nf-ri-meta {
@@ -3650,4 +3642,18 @@ html.notflix-ui body {
 
 .notflix-ui .nf-player .player-source-badges {
   display: none;
+}
+
+.notflix-ui .series-detail-shell .nf-dh-actions,
+.notflix-ui .series-detail-shell .nf-dh-actions.is-at-end {
+  max-height: 198px;
+  margin-left: -8px;
+  padding: 6px 8px 0;
+  box-sizing: content-box;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.notflix-ui .home-sidebar.notflix-topbar .home-profile-avatar {
+  border-radius: 50%;
 }
