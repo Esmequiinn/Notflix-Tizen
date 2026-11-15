@@ -16,7 +16,6 @@ Optimized for the **Samsung UN32T4300 (Tizen 5.5)**. Layout, timings and memory 
 - Netflix-style player with skip intro, recap and credits buttons, next episode at the start of the credits and a pause screen
 - Post-play recommendations
 - Spanish audio variants picked according to each profile's language settings
-- The original Nuvio interface is still available under **Settings → Advanced → Interface style**
 
 Your Nuvio account, profiles, addons, Trakt and Simkl connections work exactly as in Nuvio TV. Plugins are not available on Tizen 5.5.
 
