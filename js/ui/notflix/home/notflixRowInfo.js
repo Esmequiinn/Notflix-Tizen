@@ -4,6 +4,8 @@ const ROW_SELECTOR = ".home-row-continue, .home-row";
 const INFO_WIDTH = 1100;
 const EDGE = 68;
 const INFO_GAP = 4;
+const MIN_INFO_WIDTH = 640;
+const REALIGN_DELAYS = [180, 420, 800, 1300];
 
 export function rowOfNode(node) {
   return node?.closest?.(ROW_SELECTOR) || null;
@@ -46,8 +48,8 @@ function alignInfo(screen, card, host) {
   const rowRect = row.getBoundingClientRect();
   const cardRect = card.getBoundingClientRect();
   const viewport = globalThis.innerWidth || 1920;
-  const width = Math.min(INFO_WIDTH, viewport - EDGE * 2);
-  const left = Math.max(EDGE, Math.min(cardRect.left, viewport - EDGE - width));
+  const left = Math.max(EDGE, Math.min(cardRect.left, viewport - EDGE - MIN_INFO_WIDTH));
+  const width = Math.min(INFO_WIDTH, viewport - EDGE - left);
   host.style.width = `${Math.round(width)}px`;
   host.style.left = `${Math.max(0, Math.round(left - rowRect.left))}px`;
   const top = Math.max(0, Math.round(cardRect.bottom - rowRect.top + INFO_GAP));
@@ -69,7 +71,7 @@ export function setRowInfo(screen, card, markup) {
   alignInfo(screen, card, host);
   const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
   frame(() => alignInfo(screen, card, host));
-  setTimeout(() => alignInfo(screen, card, host), 320);
+  REALIGN_DELAYS.forEach((delay) => setTimeout(() => alignInfo(screen, card, host), delay));
 }
 
 const TOP_CLEARANCE = 120;

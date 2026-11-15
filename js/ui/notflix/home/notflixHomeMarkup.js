@@ -1,4 +1,5 @@
 import { I18n } from "../../../i18n/index.js";
+import { backdropOf } from "./notflixPreload.js";
 
 const ICON_PATHS = {
   play: "M8 5v14l11-7z",
@@ -78,8 +79,7 @@ export function billboardMarkup(item, candidates = [], activeIndex = 0) {
 }
 
 export function expandedArtMarkup(item) {
-  const backdrop =
-    item?.background || item?.backdrop || item?.landscapePoster || item?.poster || "";
+  const backdrop = backdropOf(item);
   const logo = item?.logo || "";
   const title = escapeText(item?.name || "");
   return `

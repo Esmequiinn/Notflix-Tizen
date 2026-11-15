@@ -2,8 +2,9 @@ import { Router } from "../../navigation/routerState.js";
 import { getCardOpeningDelayMs, getNotflixOptions } from "../notflixOptions.js";
 import { normalizeContinueWatchingItem } from "../../screens/home/homeScreenHelpers-09-normalize-continue-watching-item.js";
 import { escapeText, nt } from "./notflixHomeMarkup.js";
+import { preloadImage, waitForImage } from "./notflixPreload.js";
 
-const MIN_IDLE_MS = 2500;
+const MIN_IDLE_MS = 1400;
 
 export function isContinueCard(node) {
   return Boolean(
@@ -43,11 +44,15 @@ export function episodeLabel(item) {
   return nt("notflix_episode_code", `S${season}:E${episode}`, { 1: season, 2: episode });
 }
 
-function artMarkup(item) {
+function artImage(item) {
   const isSeries = Number(item?.episode) > 0;
-  const image = isSeries
+  return isSeries
     ? item.episodeThumbnail || item.thumbnail || item.backdrop || item.background
     : item.backdrop || item.background || item.landscapePoster || item.poster;
+}
+
+function artMarkup(item) {
+  const image = artImage(item);
   const title = escapeText(item?.title || item?.name || "");
   const percent = Math.round(Math.max(0, Math.min(1, Number(item?.progressFraction || 0))) * 100);
   return `
@@ -73,6 +78,7 @@ export function continueInfoMarkup(screen, card) {
 }
 
 function clearTimer(screen) {
+  screen.nfCwToken = (screen.nfCwToken || 0) + 1;
   if (screen.nfCwTimer) {
     clearTimeout(screen.nfCwTimer);
     screen.nfCwTimer = null;
@@ -104,14 +110,21 @@ function expand(screen, card) {
 export function scheduleContinueExpand(screen, card) {
   clearTimer(screen);
   if (getNotflixOptions().homeMotion === "reduced") return;
+  const item = cwItem(screen, card);
+  const image = item ? artImage(item) : "";
+  preloadImage(image);
+  if (item?.logo) preloadImage(item.logo);
   const opening = getCardOpeningDelayMs();
   const delay =
-    getNotflixOptions().cardOpening === "instant"
-      ? opening * 2
-      : Math.max(MIN_IDLE_MS, opening * 2);
+    getNotflixOptions().cardOpening === "instant" ? opening * 2 : Math.max(MIN_IDLE_MS, opening);
+  const token = (screen.nfCwToken || 0) + 1;
+  screen.nfCwToken = token;
   screen.nfCwTimer = setTimeout(() => {
     screen.nfCwTimer = null;
     if (Router.getCurrent?.() !== "home") return;
-    expand(screen, card);
+    void waitForImage(image, 900).then(() => {
+      if (screen.nfCwToken !== token || Router.getCurrent?.() !== "home") return;
+      expand(screen, card);
+    });
   }, delay);
 }

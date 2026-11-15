@@ -29,6 +29,7 @@ import {
 } from "./notflixContinue.js";
 import { activateRow, rowInfoMarkup, scheduleRowReveal, setRowInfo } from "./notflixRowInfo.js";
 import { extendRowIfNeeded } from "./notflixRowMore.js";
+import { backdropOf, preloadImage, waitForImage } from "./notflixPreload.js";
 import { localizeHero, noteHeroActivity, scheduleHeroIdle, stopHeroLoop } from "./notflixHero.js";
 import { billboardMarkup, escapeText, expandedArtMarkup } from "./notflixHomeMarkup.js";
 
@@ -161,6 +162,7 @@ function scheduleIdleWork(screen) {
 }
 
 function clearExpandTimer(screen) {
+  screen.nfExpandToken = (screen.nfExpandToken || 0) + 1;
   if (screen.nfExpandTimer) {
     clearTimeout(screen.nfExpandTimer);
     screen.nfExpandTimer = null;
@@ -328,13 +330,37 @@ function expandCard(screen, card) {
   scheduleCardPreview(screen, card, item);
 }
 
+const EXPAND_IMAGE_WAIT_MS = 900;
+const NEIGHBOR_PRELOAD = 2;
+
+function preloadAround(screen, card) {
+  const item = cardItem(screen, card);
+  preloadImage(backdropOf(item));
+  if (item?.logo) preloadImage(item.logo);
+  let next = card.nextElementSibling;
+  let prev = card.previousElementSibling;
+  for (let step = 0; step < NEIGHBOR_PRELOAD; step += 1) {
+    [next, prev].forEach((node) => {
+      if (node && isExpandableCard(node)) preloadImage(backdropOf(cardItem(screen, node)));
+    });
+    next = next?.nextElementSibling || null;
+    prev = prev?.previousElementSibling || null;
+  }
+}
+
 function scheduleExpand(screen, card) {
   clearExpandTimer(screen);
+  preloadAround(screen, card);
   const delay = getCardOpeningDelayMs();
+  const token = (screen.nfExpandToken || 0) + 1;
+  screen.nfExpandToken = token;
   screen.nfExpandTimer = setTimeout(() => {
     screen.nfExpandTimer = null;
     if (Router.getCurrent?.() !== "home") return;
-    expandCard(screen, card);
+    void waitForImage(backdropOf(cardItem(screen, card)), EXPAND_IMAGE_WAIT_MS).then(() => {
+      if (screen.nfExpandToken !== token || Router.getCurrent?.() !== "home") return;
+      expandCard(screen, card);
+    });
   }, delay);
 }
 
