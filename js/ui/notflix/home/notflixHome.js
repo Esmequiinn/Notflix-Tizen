@@ -8,7 +8,12 @@ import {
 } from "../notflixOptions.js";
 import { playUiSound } from "../notflixSounds.js";
 import { playTrailerChain } from "../trailers/trailerChain.js";
-import { clearNuvioTrailer, mountNuvioTrailer } from "../trailers/nuvioTrailer.js";
+import {
+  clearNuvioTrailer,
+  mountNuvioTrailer,
+  warmTrailerPlayer
+} from "../trailers/nuvioTrailer.js";
+import { startTrailerProxyProbe } from "../trailers/trailerProxy.js";
 import { stopPreview } from "../trailers/previewPlayer.js";
 import { isHiddenTitle } from "../profiles/hiddenTitles.js";
 import {
@@ -134,10 +139,26 @@ function syncBillboardCursor(screen) {
 
 const WARMUP_MS = 2500;
 
+function warmTrailers(screen) {
+  if (screen.nfTrailerWarmStarted) return;
+  const options = getNotflixOptions();
+  if (!options.previewEnabled || !options.previewSound || options.homeMotion === "reduced") return;
+  const item = screen.heroItem || screen.heroCandidates?.[0];
+  if (!item || typeof screen.getTrailerSourceForItem !== "function") return;
+  screen.nfTrailerWarmStarted = true;
+  void startTrailerProxyProbe()
+    .then((url) => (url ? screen.getTrailerSourceForItem(item) : null))
+    .then((source) => {
+      if (source?.kind === "youtube" && source.ytId) warmTrailerPlayer(source.ytId);
+    })
+    .catch(() => {});
+}
+
 function runIdleWork(screen) {
   if (!active(screen) || !screen.container?.isConnected) return;
   screen.nfWarm = true;
   enrichHero(screen);
+  warmTrailers(screen);
   if (!screen.nfHeroRotateTimer && !screen.nfHeroTrailerHost) scheduleHeroIdle(screen);
   if (screen.nfAgePending?.length) {
     const pending = screen.nfAgePending;
