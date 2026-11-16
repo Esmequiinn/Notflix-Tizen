@@ -10,7 +10,6 @@ import { withNotflixProfiles } from "./profiles/notflixProfiles.js";
 import { PlayerScreen } from "../screens/player/playerScreen.js";
 import { withNotflixPlayer } from "./playback/notflixPlayerFallback.js";
 import { withNotflixPlayerUi } from "./playback/notflixPlayerUi.js";
-import { startTrailerProxyProbe } from "./trailers/trailerProxy.js";
 import { CalendarScreen } from "./calendar/calendarScreen.js";
 import { LibraryScreen } from "../screens/library/libraryScreen.js";
 import { withNotflixLibrary } from "./library/notflixMyList.js";
@@ -39,7 +38,6 @@ export function installNotflix() {
   patch(PlayerScreen, withNotflixPlayerUi);
   patch(LibraryScreen, withNotflixLibrary);
   SearchScreen.nfTitleVisible = (type, id) => !isNotflixActive() || isNotflixTitleVisible(type, id);
-  void startTrailerProxyProbe();
   try {
     if (globalThis.localStorage?.getItem("nfDebug") === "1") {
       globalThis.__nuvioDebugScreen = () => Router.routes?.[Router.getCurrent?.()] || null;

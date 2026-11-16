@@ -5,7 +5,7 @@ const INFO_WIDTH = 1100;
 const EDGE = 68;
 const INFO_GAP = 4;
 const MIN_INFO_WIDTH = 640;
-const REALIGN_DELAYS = [180, 420, 800, 1300];
+const SETTLE_MS = 300;
 
 export function rowOfNode(node) {
   return node?.closest?.(ROW_SELECTOR) || null;
@@ -42,36 +42,53 @@ export function activateRow(screen, node) {
   return row;
 }
 
+function writeStyle(node, name, value) {
+  if (node.style[name] !== value) node.style[name] = value;
+}
+
 function alignInfo(screen, card, host) {
   const row = screen.nfActiveRow;
-  if (!row || screen.nfRowInfoCard !== card) return;
+  if (!row || screen.nfRowInfoCard !== card || !card.isConnected) return;
   const rowRect = row.getBoundingClientRect();
   const cardRect = card.getBoundingClientRect();
   const viewport = globalThis.innerWidth || 1920;
   const left = Math.max(EDGE, Math.min(cardRect.left, viewport - EDGE - MIN_INFO_WIDTH));
   const width = Math.min(INFO_WIDTH, viewport - EDGE - left);
-  host.style.width = `${Math.round(width)}px`;
-  host.style.left = `${Math.max(0, Math.round(left - rowRect.left))}px`;
   const top = Math.max(0, Math.round(cardRect.bottom - rowRect.top + INFO_GAP));
-  host.style.top = `${top}px`;
-  host.style.bottom = "auto";
+  if (!host.nfHeight) host.nfHeight = host.offsetHeight;
   const padding = parseFloat(row.style.paddingBottom) || 0;
-  const contentHeight = rowRect.height - padding;
-  const needed = Math.max(0, Math.ceil(top + host.offsetHeight - contentHeight));
+  const needed = Math.max(0, Math.ceil(top + host.nfHeight - (rowRect.height - padding)));
+  writeStyle(host, "width", `${Math.round(width)}px`);
+  writeStyle(host, "left", `${Math.max(0, Math.round(left - rowRect.left))}px`);
+  writeStyle(host, "top", `${top}px`);
+  writeStyle(host, "bottom", "auto");
   if (Math.abs(needed - padding) > 1) row.style.paddingBottom = `${needed}px`;
+}
+
+function scheduleAlign(screen, card, host) {
+  if (screen.nfAlignFrame) return;
+  const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
+  screen.nfAlignFrame = frame(() => {
+    screen.nfAlignFrame = null;
+    alignInfo(screen, screen.nfRowInfoCard, host);
+  });
+  if (screen.nfAlignTimer) clearTimeout(screen.nfAlignTimer);
+  screen.nfAlignTimer = setTimeout(() => {
+    screen.nfAlignTimer = null;
+    alignInfo(screen, screen.nfRowInfoCard, host);
+  }, SETTLE_MS);
 }
 
 export function setRowInfo(screen, card, markup) {
   const row = screen.nfActiveRow;
   if (!row || !card || !row.contains(card)) return;
   const host = infoHost(row, true);
-  if (host.innerHTML !== markup) host.innerHTML = markup;
-  host.classList.toggle("is-empty", !markup);
+  if (host.nfMarkup !== markup) {
+    host.nfMarkup = markup;
+    host.innerHTML = markup;
+  }
   screen.nfRowInfoCard = card;
-  alignInfo(screen, card, host);
-  const frame = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
-  frame(() => alignInfo(screen, card, host));
-  REALIGN_DELAYS.forEach((delay) => setTimeout(() => alignInfo(screen, card, host), delay));
+  scheduleAlign(screen, card, host);
 }
 
 const TOP_CLEARANCE = 120;

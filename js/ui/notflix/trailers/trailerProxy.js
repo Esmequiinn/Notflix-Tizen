@@ -1,10 +1,6 @@
 const CANDIDATES = [
   "https://esmequiinn.github.io/Notflix-Tizen/nf-youtube-proxy.html",
-  "https://raw.githack.com/Esmequiinn/Notflix-Tizen/main/nf-youtube-proxy.html",
-  "https://esmequiinn.github.io/notflix/nf-youtube-proxy.html",
-  "https://raw.githack.com/Esmequiinn/notflix/main/nf-youtube-proxy.html",
-  "https://esmequiinn.github.io/NuvioTVSmart-Roku/nf-youtube-proxy.html",
-  "https://raw.githack.com/Esmequiinn/NuvioTVSmart-Roku/main/nf-youtube-proxy.html"
+  "https://raw.githack.com/Esmequiinn/Notflix-Tizen/main/nf-youtube-proxy.html"
 ];
 const PROBE_TIMEOUT_MS = 5000;
 

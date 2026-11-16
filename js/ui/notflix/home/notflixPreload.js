@@ -27,6 +27,20 @@ export function waitForImage(url, timeoutMs) {
   ]);
 }
 
+const TMDB_SIZED = /(image\.tmdb\.org\/t\/p\/)(original|w1920|w1280)\//;
+
+export function sizedImage(url, size) {
+  const value = String(url || "");
+  return TMDB_SIZED.test(value) ? value.replace(TMDB_SIZED, `$1${size}/`) : value;
+}
+
 export function backdropOf(item) {
-  return item?.background || item?.backdrop || item?.landscapePoster || item?.poster || "";
+  return sizedImage(
+    item?.background || item?.backdrop || item?.landscapePoster || item?.poster || "",
+    "w780"
+  );
+}
+
+export function cardLogoOf(item) {
+  return sizedImage(item?.logo || "", "w500");
 }

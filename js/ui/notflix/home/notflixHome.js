@@ -34,7 +34,7 @@ import {
 } from "./notflixContinue.js";
 import { activateRow, rowInfoMarkup, scheduleRowReveal, setRowInfo } from "./notflixRowInfo.js";
 import { extendRowIfNeeded } from "./notflixRowMore.js";
-import { backdropOf, preloadImage, waitForImage } from "./notflixPreload.js";
+import { backdropOf, cardLogoOf, preloadImage, waitForImage } from "./notflixPreload.js";
 import { localizeHero, noteHeroActivity, scheduleHeroIdle, stopHeroLoop } from "./notflixHero.js";
 import { billboardMarkup, escapeText, expandedArtMarkup } from "./notflixHomeMarkup.js";
 
@@ -142,16 +142,28 @@ const WARMUP_MS = 2500;
 function warmTrailers(screen) {
   if (screen.nfTrailerWarmStarted) return;
   const options = getNotflixOptions();
-  if (!options.previewEnabled || !options.previewSound || options.homeMotion === "reduced") return;
-  const item = screen.heroItem || screen.heroCandidates?.[0];
-  if (!item || typeof screen.getTrailerSourceForItem !== "function") return;
+  if (!options.previewEnabled || options.homeMotion === "reduced") return;
   screen.nfTrailerWarmStarted = true;
-  void startTrailerProxyProbe()
-    .then((url) => (url ? screen.getTrailerSourceForItem(item) : null))
-    .then((source) => {
-      if (source?.kind === "youtube" && source.ytId) warmTrailerPlayer(source.ytId);
-    })
-    .catch(() => {});
+  void startTrailerProxyProbe();
+  if (!options.previewSound) return;
+  let attempts = 0;
+  const tryWarm = () => {
+    attempts += 1;
+    if (!active(screen) || Router.getCurrent?.() !== "home") return;
+    if (Date.now() - Number(screen.nfLastKeyAt || 0) < WARM_QUIET_MS && attempts < WARM_ATTEMPTS) {
+      setTimeout(tryWarm, WARM_RETRY_MS);
+      return;
+    }
+    const item = screen.heroItem || screen.heroCandidates?.[0];
+    if (!item || typeof screen.getTrailerSourceForItem !== "function") return;
+    void startTrailerProxyProbe()
+      .then((url) => (url ? screen.getTrailerSourceForItem(item) : null))
+      .then((source) => {
+        if (source?.kind === "youtube" && source.ytId) warmTrailerPlayer(source.ytId);
+      })
+      .catch(() => {});
+  };
+  setTimeout(tryWarm, WARM_DELAY_MS);
 }
 
 function runIdleWork(screen) {
@@ -332,7 +344,7 @@ function applyLocalizedDetails(screen, card, details) {
   if (details.logo) {
     const brand = card.querySelector(".nf-xp-brand");
     if (brand)
-      brand.innerHTML = `<img class="nf-xp-logo" src="${escapeText(details.logo)}" alt="" decoding="async" />`;
+      brand.innerHTML = `<img class="nf-xp-logo" src="${escapeText(cardLogoOf(details))}" alt="" decoding="async" />`;
   }
 }
 
@@ -353,12 +365,17 @@ function expandCard(screen, card) {
 
 const EXPAND_IMAGE_WAIT_MS = 900;
 const ROW_PEEK_PX = 26;
+const PRELOAD_DWELL_MS = 180;
+const WARM_DELAY_MS = 6000;
+const WARM_QUIET_MS = 3000;
+const WARM_RETRY_MS = 2500;
+const WARM_ATTEMPTS = 8;
 const NEIGHBOR_PRELOAD = 2;
 
 function preloadAround(screen, card) {
   const item = cardItem(screen, card);
   preloadImage(backdropOf(item));
-  if (item?.logo) preloadImage(item.logo);
+  if (item?.logo) preloadImage(cardLogoOf(item));
   let next = card.nextElementSibling;
   let prev = card.previousElementSibling;
   for (let step = 0; step < NEIGHBOR_PRELOAD; step += 1) {
@@ -372,7 +389,11 @@ function preloadAround(screen, card) {
 
 function scheduleExpand(screen, card) {
   clearExpandTimer(screen);
-  preloadAround(screen, card);
+  if (screen.nfPreloadTimer) clearTimeout(screen.nfPreloadTimer);
+  screen.nfPreloadTimer = setTimeout(() => {
+    screen.nfPreloadTimer = null;
+    if (card.isConnected && card.classList.contains("focused")) preloadAround(screen, card);
+  }, PRELOAD_DWELL_MS);
   const delay = getCardOpeningDelayMs();
   const token = (screen.nfExpandToken || 0) + 1;
   screen.nfExpandToken = token;
@@ -473,6 +494,7 @@ function handleExpandedCardKey(screen) {
 }
 
 export function handleNotflixHomeKey(screen, event) {
+  screen.nfLastKeyAt = Date.now();
   if (!active(screen)) return false;
   if (screen._homeHoldDialog || screen.continueWatchingMenu || screen.posterHoldMenu) return false;
   const code = Number(event?.keyCode || 0);

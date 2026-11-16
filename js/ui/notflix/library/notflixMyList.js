@@ -5,7 +5,7 @@ import { getCardOpeningDelayMs, getCardScale } from "../notflixOptions.js";
 import { escapeText, expandedArtMarkup, nt } from "../home/notflixHomeMarkup.js";
 import { localizedDetails } from "../home/notflixLocalize.js";
 import { activateRow, rowInfoMarkup, setRowInfo } from "../home/notflixRowInfo.js";
-import { backdropOf, preloadImage, waitForImage } from "../home/notflixPreload.js";
+import { backdropOf, cardLogoOf, preloadImage, waitForImage } from "../home/notflixPreload.js";
 
 const POSTER_W = 420;
 const POSTER_H = 622;
@@ -152,7 +152,7 @@ function showInfo(screen, card) {
       if (details?.logo && screen.nfMlExpanded === card) {
         const brand = card.querySelector(".nf-xp-brand");
         if (brand)
-          brand.innerHTML = `<img class="nf-xp-logo" src="${escapeText(details.logo)}" alt="" decoding="async" />`;
+          brand.innerHTML = `<img class="nf-xp-logo" src="${escapeText(cardLogoOf(details))}" alt="" decoding="async" />`;
       }
     });
   }, 320);

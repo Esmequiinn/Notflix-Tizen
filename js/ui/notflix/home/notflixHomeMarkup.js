@@ -1,5 +1,5 @@
 import { I18n } from "../../../i18n/index.js";
-import { backdropOf } from "./notflixPreload.js";
+import { backdropOf, cardLogoOf } from "./notflixPreload.js";
 
 const ICON_PATHS = {
   play: "M8 5v14l11-7z",
@@ -80,7 +80,7 @@ export function billboardMarkup(item, candidates = [], activeIndex = 0) {
 
 export function expandedArtMarkup(item) {
   const backdrop = backdropOf(item);
-  const logo = item?.logo || "";
+  const logo = cardLogoOf(item);
   const title = escapeText(item?.name || "");
   return `
     <div class="nf-xp">

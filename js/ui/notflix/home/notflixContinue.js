@@ -2,7 +2,7 @@ import { Router } from "../../navigation/routerState.js";
 import { getCardOpeningDelayMs, getNotflixOptions } from "../notflixOptions.js";
 import { normalizeContinueWatchingItem } from "../../screens/home/homeScreenHelpers-09-normalize-continue-watching-item.js";
 import { escapeText, nt } from "./notflixHomeMarkup.js";
-import { preloadImage, waitForImage } from "./notflixPreload.js";
+import { cardLogoOf, preloadImage, sizedImage, waitForImage } from "./notflixPreload.js";
 
 const MIN_IDLE_MS = 1400;
 
@@ -46,9 +46,12 @@ export function episodeLabel(item) {
 
 function artImage(item) {
   const isSeries = Number(item?.episode) > 0;
-  return isSeries
-    ? item.episodeThumbnail || item.thumbnail || item.backdrop || item.background
-    : item.backdrop || item.background || item.landscapePoster || item.poster;
+  return sizedImage(
+    isSeries
+      ? item.episodeThumbnail || item.thumbnail || item.backdrop || item.background
+      : item.backdrop || item.background || item.landscapePoster || item.poster,
+    "w780"
+  );
 }
 
 function artMarkup(item) {
@@ -59,7 +62,7 @@ function artMarkup(item) {
     <div class="nf-cw-xp">
       ${image ? `<img class="nf-cw-xp-img" src="${escapeText(image)}" alt="" decoding="async" />` : ""}
       <div class="nf-cw-xp-scrim"></div>
-      <div class="nf-cw-xp-brand">${item?.logo ? `<img class="nf-cw-xp-logo" src="${escapeText(item.logo)}" alt="${title}" decoding="async" />` : `<span class="nf-cw-xp-title">${title}</span>`}</div>
+      <div class="nf-cw-xp-brand">${item?.logo ? `<img class="nf-cw-xp-logo" src="${escapeText(cardLogoOf(item))}" alt="${title}" decoding="async" />` : `<span class="nf-cw-xp-title">${title}</span>`}</div>
       ${percent > 0 ? `<div class="nf-cw-xp-progress"><span style="width:${percent}%"></span></div>` : ""}
     </div>
   `;
@@ -113,7 +116,7 @@ export function scheduleContinueExpand(screen, card) {
   const item = cwItem(screen, card);
   const image = item ? artImage(item) : "";
   preloadImage(image);
-  if (item?.logo) preloadImage(item.logo);
+  if (item?.logo) preloadImage(cardLogoOf(item));
   const opening = getCardOpeningDelayMs();
   const delay =
     getNotflixOptions().cardOpening === "instant" ? opening * 2 : Math.max(MIN_IDLE_MS, opening);
