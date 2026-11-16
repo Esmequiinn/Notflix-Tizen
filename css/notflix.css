@@ -3753,3 +3753,9 @@ html.notflix-ui body {
 .notflix-ui .library-shell .nf-ml-card.nf-expanded .nf-ml-poster {
   visibility: hidden;
 }
+
+.notflix-ui .home-screen-shell.home-layout-classic .home-track::after {
+  content: "";
+  flex: 0 0 calc(100vw - var(--nf-exp-w, 980px) - 160px);
+  height: 1px;
+}

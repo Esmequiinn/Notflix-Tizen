@@ -10,7 +10,7 @@ import { backdropOf, preloadImage, waitForImage } from "../home/notflixPreload.j
 const POSTER_W = 420;
 const POSTER_H = 622;
 const EXPANDED_MAX_W = 980;
-const EDGE = 68;
+const ROW_PEEK_PX = 26;
 const TOP_OFFSET = 8;
 const KEY_LEFT = 37;
 const KEY_UP = 38;
@@ -121,17 +121,9 @@ function clearExpand(screen) {
 
 function trackOffset(screen, card) {
   const track = card.parentNode;
-  const viewport = track?.parentNode;
-  if (!track || !viewport) return;
-  const expandedWidth =
-    parseFloat(getComputedStyle(card).getPropertyValue("--nf-exp-w")) || card.offsetWidth;
-  const left = card.offsetLeft;
-  const right = left + Math.max(card.offsetWidth, expandedWidth);
-  const width = viewport.clientWidth - EDGE;
-  let offset = Number(track.dataset.nfOffset || 0);
-  if (left - offset < 0) offset = left;
-  else if (right - offset > width) offset = right - width;
-  offset = Math.max(0, offset);
+  if (!track) return;
+  const peek = card.previousElementSibling ? ROW_PEEK_PX : 0;
+  const offset = Math.max(0, card.offsetLeft - peek);
   if (String(offset) === track.dataset.nfOffset) return;
   track.dataset.nfOffset = String(offset);
   track.style.transform = `translate3d(${-offset}px, 0, 0)`;

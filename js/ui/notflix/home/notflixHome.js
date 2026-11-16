@@ -352,6 +352,7 @@ function expandCard(screen, card) {
 }
 
 const EXPAND_IMAGE_WAIT_MS = 900;
+const ROW_PEEK_PX = 26;
 const NEIGHBOR_PRELOAD = 2;
 
 function preloadAround(screen, card) {
@@ -664,6 +665,27 @@ export function withNotflixHome(base) {
       const result = base.applyHeroToDom.apply(this, args);
       if (active(this)) renderNotflixBillboard(this);
       return result;
+    },
+    ensureTrackHorizontalVisibility(target, direction = null, layoutAdjustment = 0) {
+      const track =
+        active(this) && this.layoutMode !== "modern" ? target?.closest?.(".home-track") : null;
+      if (!track)
+        return base.ensureTrackHorizontalVisibility.call(this, target, direction, layoutAdjustment);
+      const metrics = this.getTrackViewportMetrics(track);
+      const peek = target.previousElementSibling ? ROW_PEEK_PX : 0;
+      const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+      const value = Math.min(
+        maxScroll,
+        Math.max(0, Math.round(target.offsetLeft - metrics.leftPadding - peek))
+      );
+      if (Math.abs(Number(track.scrollLeft || 0) - value) <= 1) return undefined;
+      if (this.shouldUseImmediateHorizontalScrollForNode?.(target)) {
+        this.cancelScrollAnimation?.(track, "x");
+        track.scrollLeft = value;
+        return undefined;
+      }
+      this.animateScroll(track, "x", value, this.getScrollDuration?.(200) || 200);
+      return undefined;
     },
     focusNode(current, target, direction, inputMeta) {
       if (active(this) && target) {
