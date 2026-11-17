@@ -4,7 +4,6 @@ import { buildTrailerProxyEmbed } from "./trailerProxy.js";
 
 const CONTENT_WAIT_MS = 60000;
 const CUSTOM_WAIT_MS = 12000;
-const WARM_MAX_MS = 70000;
 const CUSTOM_FAILURE_LIMIT = 2;
 let customFailures = 0;
 const MIN_CONTENT_SECONDS = 0.35;
@@ -151,7 +150,6 @@ export function mountNuvioTrailer(
   const home = homeScreen();
   if (!home?.mountTrailerLayer || !source || !parent) return null;
   const isYoutube = source.kind === "youtube";
-  stopWarm();
   const prepared = applyTrailerAudioPreferences(source, {
     focusedPosterBackdropTrailerMuted: muted
   });
@@ -214,53 +212,6 @@ export function clearNuvioTrailer(layer) {
   layer.remove();
 }
 
-let warmFrame = null;
-let warmDone = false;
-
-function stopWarm() {
-  const frame = warmFrame;
-  warmFrame = null;
-  if (!frame) return;
-  window.removeEventListener("message", frame.nfListener);
-  clearTimeout(frame.nfTimer);
-  frame.src = "about:blank";
-  frame.remove();
-}
-
-export function warmTrailerPlayer(ytId) {
-  if (warmDone || warmFrame || !ytId) return;
-  const src = buildTrailerProxyEmbed(ytId);
-  if (!src) return;
-  warmDone = true;
-  const frame = document.createElement("iframe");
-  frame.setAttribute("allow", "autoplay; encrypted-media");
-  frame.setAttribute("aria-hidden", "true");
-  frame.tabIndex = -1;
-  frame.style.cssText =
-    "position:fixed;left:-2000px;top:0;width:480px;height:270px;border:0;opacity:0;pointer-events:none;";
-  let lastTime = -1;
-  frame.nfListener = (event) => {
-    if (event?.source !== frame.contentWindow) return;
-    const data = event.data;
-    if (!data || data.source !== "nuvio-youtube-proxy") return;
-    if (data.type === "error") {
-      stopWarm();
-      return;
-    }
-    const state = data.state;
-    if (!state) return;
-    const time = Number(state.currentTime || 0);
-    const advancing = lastTime >= 0 && time > lastTime;
-    lastTime = time;
-    if (Number(state.playerState) === 1 && !state.loading && advancing && time >= 1) stopWarm();
-  };
-  frame.nfTimer = setTimeout(stopWarm, WARM_MAX_MS);
-  window.addEventListener("message", frame.nfListener);
-  warmFrame = frame;
-  frame.src = src;
-  document.body.appendChild(frame);
-}
-
 function silenceVideo(video) {
   try {
     video.pause();
@@ -273,7 +224,6 @@ function silenceVideo(video) {
 }
 
 export function releaseBackgroundMedia(keep) {
-  stopWarm();
   const detail = Router.routes?.detail;
   if (detail?.isTrailerPlaying) {
     try {

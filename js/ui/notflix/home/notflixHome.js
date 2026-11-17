@@ -1,7 +1,4 @@
-import { Platform } from "../../../platform/index.js";
-import { TizenEngineFsService } from "../../../platform/tizen/tizenEngineFsService.js";
 import { consumePlaybackMark } from "../playback/playbackMark.js";
-import { setServiceNote } from "../diagnostics/notflixPerf.js";
 import { Router } from "../../navigation/routerState.js";
 import { isNotflixActive } from "../notflixAppearance.js";
 import {
@@ -12,11 +9,7 @@ import {
 } from "../notflixOptions.js";
 import { playUiSound } from "../notflixSounds.js";
 import { playTrailerChain } from "../trailers/trailerChain.js";
-import {
-  clearNuvioTrailer,
-  mountNuvioTrailer,
-  warmTrailerPlayer
-} from "../trailers/nuvioTrailer.js";
+import { clearNuvioTrailer, mountNuvioTrailer } from "../trailers/nuvioTrailer.js";
 import { startTrailerProxyProbe } from "../trailers/trailerProxy.js";
 import { stopPreview } from "../trailers/previewPlayer.js";
 import { isHiddenTitle } from "../profiles/hiddenTitles.js";
@@ -149,56 +142,11 @@ function warmTrailers(screen) {
   if (!options.previewEnabled || options.homeMotion === "reduced") return;
   screen.nfTrailerWarmStarted = true;
   void startTrailerProxyProbe();
-  if (!options.previewSound) return;
-  let attempts = 0;
-  const tryWarm = () => {
-    attempts += 1;
-    if (!active(screen) || Router.getCurrent?.() !== "home") return;
-    if (Date.now() - Number(screen.nfLastKeyAt || 0) < WARM_QUIET_MS && attempts < WARM_ATTEMPTS) {
-      setTimeout(tryWarm, WARM_RETRY_MS);
-      return;
-    }
-    const item = screen.heroItem || screen.heroCandidates?.[0];
-    if (!item || typeof screen.getTrailerSourceForItem !== "function") return;
-    void startTrailerProxyProbe()
-      .then((url) => (url ? screen.getTrailerSourceForItem(item) : null))
-      .then((source) => {
-        if (source?.kind === "youtube" && source.ytId) warmTrailerPlayer(source.ytId);
-      })
-      .catch(() => {});
-  };
-  setTimeout(tryWarm, WARM_DELAY_MS);
-}
-
-let playbackServiceWarmed = false;
-
-function warmPlaybackService() {
-  if (playbackServiceWarmed || !Platform.isTizen?.()) return;
-  playbackServiceWarmed = true;
-  setTimeout(() => {
-    void TizenEngineFsService.ensureStarted({ purpose: "playback-proxy" })
-      .then((result) => {
-        if (result?.status !== "success") {
-          setServiceNote(
-            `no responde (${String(result?.detail || result?.status || "").slice(0, 80)})`
-          );
-          return;
-        }
-        const settings = result.settings || {};
-        setServiceNote(
-          settings.lite
-            ? `ligero ${settings.node || ""}${settings.reason ? ` · ${String(settings.reason).slice(0, 60)}` : ""}`
-            : "completo"
-        );
-      })
-      .catch((error) => setServiceNote(`error (${String(error?.message || error).slice(0, 80)})`));
-  }, 4000);
 }
 
 function runIdleWork(screen) {
   if (!active(screen) || !screen.container?.isConnected) return;
   screen.nfWarm = true;
-  warmPlaybackService();
   enrichHero(screen);
   warmTrailers(screen);
   if (!screen.nfHeroRotateTimer && !screen.nfHeroTrailerHost) scheduleHeroIdle(screen);
@@ -396,10 +344,6 @@ function expandCard(screen, card) {
 const EXPAND_IMAGE_WAIT_MS = 900;
 const ROW_PEEK_PX = 26;
 const PRELOAD_DWELL_MS = 180;
-const WARM_DELAY_MS = 6000;
-const WARM_QUIET_MS = 3000;
-const WARM_RETRY_MS = 2500;
-const WARM_ATTEMPTS = 8;
 const NEIGHBOR_PRELOAD = 2;
 
 function preloadAround(screen, card) {

@@ -8,7 +8,7 @@ import { getNotflixAutoplay, isFallbackActive, pickFallbackStream } from "./notf
 import { nt } from "../home/notflixHomeMarkup.js";
 import { releaseBackgroundMedia } from "../trailers/nuvioTrailer.js";
 import { markPlayback } from "./playbackMark.js";
-import { recordPlaybackError } from "../diagnostics/notflixPerf.js";
+import { recordPlaybackError, setServiceNote } from "../diagnostics/notflixPerf.js";
 
 const NOTE_MS = 5000;
 const FALLBACK_STARTUP_STALL_MS = 25000;
@@ -185,6 +185,7 @@ export function withNotflixPlayer(base) {
       const options = args[1] || {};
       const proxyNote = PlayerController.lastProxyFailureDetail;
       PlayerController.lastProxyFailureDetail = "";
+      if (proxyNote) setServiceNote(`no responde (${String(proxyNote).slice(0, 80)})`);
       recordPlaybackError(
         [
           options.mediaErrorCode ? `#${options.mediaErrorCode}` : "",
