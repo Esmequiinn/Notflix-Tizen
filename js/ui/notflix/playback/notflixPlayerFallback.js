@@ -5,6 +5,9 @@ import {
 } from "../../../data/local/streamLinkCacheStore.js";
 import { getNotflixAutoplay, isFallbackActive, pickFallbackStream } from "./notflixAutoplay.js";
 import { nt } from "../home/notflixHomeMarkup.js";
+import { releaseBackgroundMedia } from "../trailers/nuvioTrailer.js";
+import { markPlayback } from "./playbackMark.js";
+import { recordPlaybackError } from "../diagnostics/notflixPerf.js";
 
 const NOTE_MS = 5000;
 const FALLBACK_STARTUP_STALL_MS = 25000;
@@ -163,6 +166,8 @@ export function withNotflixPlayer(base) {
       return result;
     },
     mount(params = {}, ...rest) {
+      releaseBackgroundMedia(document.getElementById("player"));
+      markPlayback();
       clearNote(this);
       this.nfCachedLinkDropped = false;
       this.nfFallbackToken = (this.nfFallbackToken || 0) + 1;
@@ -176,6 +181,7 @@ export function withNotflixPlayer(base) {
       return Math.min(value, FALLBACK_STARTUP_STALL_MS);
     },
     showStartupError(...args) {
+      recordPlaybackError(args[0], this.getCurrentStreamCandidate?.());
       dropCachedLink(this);
       if (tryFallback(this)) return undefined;
       if (this.params?.nfCachedLink && reloadAndRetry(this, args, base)) return undefined;

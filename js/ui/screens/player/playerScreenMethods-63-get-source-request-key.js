@@ -1,5 +1,8 @@
 import * as internals from "./playerScreenContext.js";
 
+const SOURCES_RENDER_CHUNK = 24;
+const SOURCES_RENDER_AHEAD = 12;
+
 export function createPlayerScreenMethods63() {
   const {
     ensureWebOsImageProxyReady,
@@ -183,6 +186,10 @@ export function createPlayerScreenMethods63() {
         }
       }
       this.ensureSourcesFocus(filters, filtered);
+      const renderLimit =
+        this.sourcesFocus.zone === "list"
+          ? Math.max(SOURCES_RENDER_CHUNK, Number(this.sourcesFocus.index || 0) + SOURCES_RENDER_AHEAD)
+          : SOURCES_RENDER_CHUNK;
 
       const nextMarkup = `
           <div class="player-sources-header">
@@ -226,6 +233,7 @@ export function createPlayerScreenMethods63() {
               !this.sourcesLoading && !filtered.length && !this.sourcesError
                 ? `<div class="player-sources-empty">${escapeHtml(t("sources_no_streams", {}, "No streams found"))}</div>`
                 : filtered
+                    .slice(0, renderLimit)
                     .map((stream, index) => {
                       const focused = this.sourcesFocus.zone === "list" && this.sourcesFocus.index === index;
                       const isCurrent = this.streamCandidates[this.currentStreamIndex]?.url === stream.url;

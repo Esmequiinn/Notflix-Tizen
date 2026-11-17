@@ -418,6 +418,26 @@ export function withNotflixDetail(base) {
       if (isNotflixActive()) return "";
       return base.renderCompanySections.apply(this, args);
     },
+    async playTrailer(options = {}) {
+      if (!isNotflixActive() || options?.initiatedByUser === false)
+        return base.playTrailer.call(this, options);
+      if (this.nfTrailerStarting) return undefined;
+      if (
+        this.isTrailerPlaying &&
+        this.trailerPlaybackMode === "manual" &&
+        !this.trailerVisualReady
+      )
+        return undefined;
+      this.nfTrailerStarting = true;
+      const button = this.container?.querySelector('[data-action="toggleTrailer"]');
+      button?.classList.add("nf-busy");
+      try {
+        return await base.playTrailer.call(this, options);
+      } finally {
+        this.nfTrailerStarting = false;
+        button?.classList.remove("nf-busy");
+      }
+    },
     restartTrailerAutoplayTimer(...args) {
       const focusedNode = this.container?.querySelector(".focusable.focused");
       if (

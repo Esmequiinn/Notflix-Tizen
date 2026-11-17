@@ -20,6 +20,7 @@ const state = {
   calls: new Map(),
   longTasks: { count: 0, total: 0 },
   images: { count: 0, bytes: 0, slow: 0 },
+  playbackErrors: [],
   lastLatency: 0,
   overlay: null,
   report: null,
@@ -114,7 +115,13 @@ function frameLoop() {
   if (state.lastFrameAt) {
     const gap = current - state.lastFrameAt;
     if (gap >= FREEZE_MS && document.visibilityState !== "hidden") {
-      state.freezes.push({ ms: Math.round(gap), route: routeName(), action: state.lastAction });
+      const heavy = state.frameHeavy;
+      state.freezes.push({
+        ms: Math.round(gap),
+        route: routeName(),
+        action: state.lastAction,
+        cause: heavy && heavy.ms >= 40 ? `${heavy.label} ${Math.round(heavy.ms)}` : ""
+      });
       if (state.freezes.length > MAX_FREEZES) {
         state.freezes.sort((a, b) => b.ms - a.ms);
         state.freezes.length = MAX_FREEZES;
@@ -122,6 +129,7 @@ function frameLoop() {
     }
   }
   state.lastFrameAt = current;
+  state.frameHeavy = null;
   state.frames += 1;
   if (current - state.frameWindowStart >= 1000) {
     state.fps = Math.round((state.frames * 1000) / (current - state.frameWindowStart));
@@ -132,6 +140,7 @@ function frameLoop() {
 }
 
 function recordCall(label, ms) {
+  if (!state.frameHeavy || ms > state.frameHeavy.ms) state.frameHeavy = { label, ms };
   const entry = bucket(state.calls, label);
   entry.count += 1;
   entry.total += ms;
@@ -179,7 +188,23 @@ const WATCHED_METHODS = [
   "mountTrailerLayer",
   "hydrateHomeLazyImages",
   "scheduleHomeLazyImageHydration",
-  "cleanup"
+  "cleanup",
+  "applyHeroToDom",
+  "requestBackgroundRender",
+  "restoreFocusState",
+  "releaseAllHomeLazyImages",
+  "evictDistantHomeLazyImages",
+  "setupContinueWatchingProgressiveRendering",
+  "syncTrailerDom",
+  "stopTrailerPlayback",
+  "playTrailer",
+  "openSourcesPanel",
+  "syncSourcesFocusDom",
+  "startPlayerControllerPlayback",
+  "showStartupError",
+  "renderParentalGuideOverlay",
+  "renderHero",
+  "renderNotflixBillboard"
 ];
 
 export function instrumentScreens(screens) {
@@ -285,10 +310,10 @@ function reportMarkup() {
   const freezeRows = state.freezes
     .slice()
     .sort((a, b) => b.ms - a.ms)
-    .slice(0, 8)
+    .slice(0, 6)
     .map(
       (freeze) =>
-        `<li><b>${freeze.ms} ms</b> · ${escapeText(ROUTE_LABELS[freeze.route] || freeze.route)} · ${escapeText(freeze.action || "-")}</li>`
+        `<li><b>${freeze.ms} ms</b> · ${escapeText(ROUTE_LABELS[freeze.route] || freeze.route)} · ${escapeText(freeze.action || "-")} <small>${escapeText(freeze.cause || "dibujo")}</small></li>`
     )
     .join("");
   const callRows = Array.from(state.calls.entries())
@@ -303,6 +328,14 @@ function reportMarkup() {
           <td>${Math.round(entry.total / Math.max(1, entry.count))}</td>
           <td>${Math.round(entry.max)}</td>
         </tr>`
+    )
+    .join("");
+  const errorRows = state.playbackErrors
+    .slice()
+    .reverse()
+    .map(
+      (entry) =>
+        `<li><b>${escapeText(entry.at)}</b> · ${escapeText(entry.text || "-")}${entry.source ? ` <small>${escapeText(entry.source)}</small>` : ""}</li>`
     )
     .join("");
   const heap = heapText();
@@ -324,6 +357,8 @@ function reportMarkup() {
         <div>
           <h3>Congelones más largos</h3>
           <ol>${freezeRows || "<li>Ninguno</li>"}</ol>
+          <h3>Errores al reproducir</h3>
+          <ul class="nf-perf-errors">${errorRows || "<li>Ninguno</li>"}</ul>
         </div>
         <div>
           <h3>Partes que más tiempo usan (ms)</h3>
@@ -362,7 +397,27 @@ export function resetPerfData() {
   state.freezes = [];
   state.longTasks = { count: 0, total: 0 };
   state.images = { count: 0, bytes: 0, slow: 0 };
+  state.playbackErrors = [];
   state.startedAt = Date.now();
+}
+
+export function recordPlaybackError(message, candidate) {
+  const source = [candidate?.addonName, candidate?.name || candidate?.title || candidate?.label]
+    .filter(Boolean)
+    .join(" · ")
+    .replace(/\s+/g, " ")
+    .slice(0, 60);
+  const text = String(message || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 90);
+  const time = new Date();
+  state.playbackErrors.push({
+    at: `${String(time.getHours()).padStart(2, "0")}:${String(time.getMinutes()).padStart(2, "0")}`,
+    source,
+    text
+  });
+  if (state.playbackErrors.length > 5) state.playbackErrors.shift();
 }
 
 let listenersReady = false;

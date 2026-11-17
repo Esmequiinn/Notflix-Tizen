@@ -3780,7 +3780,7 @@ html.notflix-ui body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.92);
+  background: #000000;
   color: #ffffff;
   font-family: inherit;
 }
@@ -3822,9 +3822,17 @@ html.notflix-ui body {
   font-size: 18px;
 }
 
-.nf-perf-report ol {
+.nf-perf-report ol,
+.nf-perf-report ul {
   margin: 0;
   padding-left: 30px;
+}
+
+.nf-perf-errors li {
+  max-width: 820px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .nf-perf-cols {
@@ -3841,4 +3849,8 @@ html.notflix-ui body {
 .nf-perf-hint {
   margin: 6px 0;
   color: #d0d0d0;
+}
+
+[data-action="toggleTrailer"].nf-busy {
+  opacity: 0.55;
 }

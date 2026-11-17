@@ -260,3 +260,58 @@ export function warmTrailerPlayer(ytId) {
   frame.src = src;
   document.body.appendChild(frame);
 }
+
+function silenceVideo(video) {
+  try {
+    video.pause();
+  } catch (_) {}
+  try {
+    video.removeAttribute("src");
+    Array.from(video.querySelectorAll("source")).forEach((source) => source.remove());
+    video.load();
+  } catch (_) {}
+}
+
+export function releaseBackgroundMedia(keep) {
+  stopWarm();
+  const detail = Router.routes?.detail;
+  if (detail?.isTrailerPlaying) {
+    try {
+      detail.stopTrailerPlayback?.({
+        keepDom: false,
+        restartAutoplay: false,
+        restoreFocus: false,
+        immediateClear: true
+      });
+    } catch (_) {}
+  }
+  if (detail?.trailerAutoplayTimer) {
+    clearTimeout(detail.trailerAutoplayTimer);
+    detail.trailerAutoplayTimer = null;
+  }
+  const home = homeScreen();
+  Array.from(document.querySelectorAll(".home-poster-trailer-layer")).forEach((layer) => {
+    if (keep?.contains(layer)) return;
+    stopGuard(layer);
+    try {
+      home?.clearTrailerLayer?.call(home, layer);
+    } catch (_) {}
+  });
+  Array.from(document.querySelectorAll("video, audio")).forEach((media) => {
+    if (keep?.contains(media)) return;
+    silenceVideo(media);
+  });
+  Array.from(document.querySelectorAll("iframe")).forEach((frame) => {
+    if (keep?.contains(frame)) return;
+    const src = String(frame.getAttribute("src") || "");
+    if (
+      !/youtube|nf-youtube-proxy|trailer/i.test(src) &&
+      !frame.closest(".home-poster-trailer-layer, [class*='trailer']")
+    )
+      return;
+    try {
+      frame.src = "about:blank";
+    } catch (_) {}
+    frame.remove();
+  });
+}

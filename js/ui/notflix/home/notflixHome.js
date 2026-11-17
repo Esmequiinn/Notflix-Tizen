@@ -1,3 +1,4 @@
+import { consumePlaybackMark } from "../playback/playbackMark.js";
 import { Router } from "../../navigation/routerState.js";
 import { isNotflixActive } from "../notflixAppearance.js";
 import {
@@ -656,7 +657,7 @@ export function withNotflixHome(base) {
     ...withHoldGuard(base, ["startPendingContinueWatchingHold"], isNotflixActive),
     mount(...args) {
       const result = base.mount.apply(this, args);
-      if (isNotflixActive()) scheduleContinueRefresh(this);
+      if (consumePlaybackMark() && isNotflixActive()) scheduleContinueRefresh(this);
       return result;
     },
     evictDistantHomeLazyImages(...args) {
