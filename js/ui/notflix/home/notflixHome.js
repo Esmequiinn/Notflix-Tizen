@@ -1,6 +1,5 @@
 import { Platform } from "../../../platform/index.js";
 import { TizenEngineFsService } from "../../../platform/tizen/tizenEngineFsService.js";
-import { remoteProxyBase } from "../../../platform/tizen/tizenPlaybackProxy.js";
 import { consumePlaybackMark } from "../playback/playbackMark.js";
 import { setServiceNote } from "../diagnostics/notflixPerf.js";
 import { Router } from "../../navigation/routerState.js";
@@ -176,10 +175,6 @@ let playbackServiceWarmed = false;
 function warmPlaybackService() {
   if (playbackServiceWarmed || !Platform.isTizen?.()) return;
   playbackServiceWarmed = true;
-  if (remoteProxyBase()) {
-    setServiceNote("remoto");
-    return;
-  }
   setTimeout(() => {
     void TizenEngineFsService.ensureStarted({ purpose: "playback-proxy" })
       .then((result) => {

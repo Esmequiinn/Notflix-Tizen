@@ -60,33 +60,6 @@ export function buildTizenPlaybackProxyUrl(baseUrl, sourceUrl, headers = {}, tra
   return `${root}/proxy/${options.toString()}${source.pathname || "/"}${source.search}`;
 }
 
-export function remoteProxyBase() {
-  const value = String(globalThis.__NUVIO_ENV__?.NOTFLIX_PLAYBACK_PROXY_URL || "").trim();
-  return parseHttpUrl(value) ? value.replace(/\/+$/, "") : "";
-}
-
-function remoteProxyResult(remoteBase, sourceUrl, headers) {
-  const source = parseHttpUrl(sourceUrl);
-  if (!source) {
-    return { status: "unavailable", url: sourceUrl, proxied: false, detail: "Invalid source URL" };
-  }
-  const entries = normalizeHeaderEntries(headers);
-  const options = new URLSearchParams();
-  options.set("d", `${source.protocol}//${source.host}`);
-  entries.forEach(([key, value]) => {
-    options.append("h", `${key}:${encodeURIComponent(value)}`);
-  });
-  return {
-    status: "success",
-    url: `${remoteBase}/proxy/${options.toString()}${source.pathname || "/"}${source.search}`,
-    proxied: true,
-    remote: true,
-    redirectReportUrl: null,
-    baseUrl: remoteBase,
-    headerNames: entries.map(([key]) => key)
-  };
-}
-
 export const TizenPlaybackProxy = {
   requiresProxy(sourceUrl = "", headers = {}, { playbackEngine = "", resolveRedirects = true } = {}) {
     const engine = String(playbackEngine || "")
@@ -111,15 +84,16 @@ export const TizenPlaybackProxy = {
       return { status: "not-required", url: originalUrl, proxied: false };
     }
 
-    const remoteBase = remoteProxyBase();
-    if (remoteBase) {
-      return remoteProxyResult(remoteBase, originalUrl, headers);
-    }
     let service;
     try {
       service = await TizenEngineFsService.ensureStarted({ purpose: "playback-proxy" });
     } catch (error) {
-      service = { status: "error", detail: error?.message || String(error || "") };
+      return {
+        status: "unavailable",
+        url: originalUrl,
+        proxied: false,
+        detail: error?.message || String(error || "Tizen playback proxy service unavailable")
+      };
     }
     const baseUrl = String(service?.baseUrl || "").trim();
     if (service?.status !== "success" || !baseUrl) {
