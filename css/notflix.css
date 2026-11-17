@@ -3759,3 +3759,86 @@ html.notflix-ui body {
   flex: 0 0 calc(100vw - var(--nf-exp-w, 980px) - 160px);
   height: 1px;
 }
+
+.nf-perf-overlay {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 99998;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #7cf29a;
+  font: 600 22px/30px monospace;
+  pointer-events: none;
+}
+
+.nf-perf-report {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  color: #ffffff;
+  font-family: inherit;
+}
+
+.nf-perf-report-box {
+  width: 1760px;
+  max-height: 1020px;
+  overflow: hidden;
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.nf-perf-report h2 {
+  margin: 0 0 8px;
+  font-size: 34px;
+}
+
+.nf-perf-report h3 {
+  margin: 18px 0 6px;
+  font-size: 26px;
+  color: #e50914;
+}
+
+.nf-perf-report table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.nf-perf-report th,
+.nf-perf-report td {
+  padding: 3px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.nf-perf-report small {
+  color: #b3b3b3;
+  font-size: 18px;
+}
+
+.nf-perf-report ol {
+  margin: 0;
+  padding-left: 30px;
+}
+
+.nf-perf-cols {
+  display: flex;
+}
+
+.nf-perf-cols > div {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-right: 30px;
+}
+
+.nf-perf-summary,
+.nf-perf-hint {
+  margin: 6px 0;
+  color: #d0d0d0;
+}

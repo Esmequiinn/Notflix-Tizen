@@ -3,6 +3,7 @@ import { NOTFLIX_STYLE, NUVIO_STYLE, getAppearanceStyle, isNotflixActive, setApp
 import { getNotflixOptions, setNotflixOption } from "../../notflix/notflixOptions.js";
 import { listHiddenTitles, unhideTitle } from "../../notflix/profiles/hiddenTitles.js";
 import { AGE_LIMITS, getAgeLimit, setAgeLimit } from "../../notflix/profiles/ageGate.js";
+import { isPerfMonitorEnabled, openPerfReport, resetPerfData, setPerfMonitorEnabled } from "../../notflix/diagnostics/notflixPerf.js";
 
 export function createSettingsScreenMethods05() {
   const {
@@ -127,6 +128,27 @@ export function createSettingsScreenMethods05() {
         value: t(`notflix_age_limit_${getAgeLimit()}`, {}, getAgeLimit())
       })
     );
+    rows.push(
+      this.renderToggleRow({
+        focusKey: "appearance:notflix:perfMonitor",
+        title: t("notflix_perf_monitor", {}, "Smoothness monitor"),
+        subtitle: t("notflix_perf_monitor_help", {}, "Measures freezes and slow screens on this TV."),
+        checked: isPerfMonitorEnabled()
+      })
+    );
+    if (isPerfMonitorEnabled()) {
+      rows.push(
+        this.renderActionRow({
+          focusKey: "appearance:notflix:perfReport",
+          title: t("notflix_perf_report", {}, "Smoothness report"),
+          subtitle: t("notflix_perf_report_help", {}, "Shows what was slow since the last reset.")
+        }),
+        this.renderActionRow({
+          focusKey: "appearance:notflix:perfReset",
+          title: t("notflix_perf_reset", {}, "Reset measurement")
+        })
+      );
+    }
     const hiddenCount = listHiddenTitles().length;
     rows.push(
       this.renderActionRow({
@@ -658,6 +680,12 @@ export function createSettingsScreenMethods05() {
           setNotflixOption(key, !getNotflixOptions()[key]);
         });
       });
+      this.actionMap.set("appearance:notflix:perfMonitor", () => {
+        setPerfMonitorEnabled(!isPerfMonitorEnabled());
+        this.render?.();
+      });
+      this.actionMap.set("appearance:notflix:perfReport", () => openPerfReport());
+      this.actionMap.set("appearance:notflix:perfReset", () => resetPerfData());
       this.actionMap.set("appearance:settingsUiStyle", () => {
         const options = ["CLASSIC", "HORIZON", "ZEN"].map((id) => ({
           id,

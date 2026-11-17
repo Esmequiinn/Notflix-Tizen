@@ -3505,6 +3505,11 @@
     <string name="notflix_pick_profile">Choose a profile</string>
     <string name="notflix_fallback_trying">Trying another source (%1$d/%2$d)</string>
     <string name="notflix_kind_movie">Movie</string>
+    <string name="notflix_perf_monitor">Smoothness monitor</string>
+    <string name="notflix_perf_monitor_help">Measures freezes and slow screens on this TV. Shows a counter in the corner.</string>
+    <string name="notflix_perf_report">Smoothness report</string>
+    <string name="notflix_perf_report_help">Shows what was slow since the last reset.</string>
+    <string name="notflix_perf_reset">Reset measurement</string>
     <string name="notflix_my_list_movies">Movies</string>
     <string name="notflix_my_list_series">Series</string>
     <string name="notflix_kind_series">Series</string>

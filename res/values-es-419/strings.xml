@@ -3507,6 +3507,11 @@
     <string name="notflix_pick_profile">Elige un perfil</string>
     <string name="notflix_fallback_trying">Probando otra fuente (%1$d/%2$d)</string>
     <string name="notflix_kind_movie">Película</string>
+    <string name="notflix_perf_monitor">Monitor de fluidez</string>
+    <string name="notflix_perf_monitor_help">Mide congelones y pantallas lentas en esta tele. Muestra un contador en la esquina.</string>
+    <string name="notflix_perf_report">Reporte de fluidez</string>
+    <string name="notflix_perf_report_help">Muestra qué estuvo lento desde la última vez que reiniciaste.</string>
+    <string name="notflix_perf_reset">Reiniciar medición</string>
     <string name="notflix_my_list_movies">Películas</string>
     <string name="notflix_my_list_series">Series</string>
     <string name="notflix_kind_series">Serie</string>

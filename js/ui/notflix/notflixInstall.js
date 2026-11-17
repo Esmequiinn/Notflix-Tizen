@@ -16,6 +16,12 @@ import { withNotflixLibrary } from "./library/notflixMyList.js";
 import { isNotflixActive } from "./notflixAppearance.js";
 import { isNotflixTitleVisible } from "./profiles/titleVisibility.js";
 import { installUiSoundKeys } from "./notflixSounds.js";
+import {
+  instrumentScreens,
+  isPerfMonitorEnabled,
+  openPerfReport,
+  startPerfMonitor
+} from "./diagnostics/notflixPerf.js";
 
 let installed = false;
 
@@ -42,9 +48,19 @@ export function installNotflix() {
     if (globalThis.localStorage?.getItem("nfDebug") === "1") {
       globalThis.__nuvioDebugScreen = () => Router.routes?.[Router.getCurrent?.()] || null;
       globalThis.__nuvioDebugRoute = (name) => Router.routes?.[name] || null;
+      globalThis.__nfPerfReport = openPerfReport;
     }
   } catch (_) {}
   if (Router.routes && !Router.routes.calendar) {
     Router.routes.calendar = CalendarScreen;
   }
+  instrumentScreens({
+    Inicio: HomeScreen,
+    Ficha: MetaDetailsScreen,
+    Reproductor: PlayerScreen,
+    MiLista: LibraryScreen,
+    Buscar: SearchScreen,
+    Perfiles: ProfileSelectionScreen
+  });
+  if (isPerfMonitorEnabled()) startPerfMonitor();
 }
