@@ -24,6 +24,7 @@ var PASS_HEADERS = [
 var server = null;
 var reports = {};
 var info = { lite: true, reason: "" };
+var settings = { prefix: "", publicBase: "" };
 
 function toArray(value) {
   if (value == null) return [];
@@ -177,8 +178,7 @@ function rewritePlaylist(text, finalUrl, baseUrl, headerList) {
     .join("\n");
 }
 
-function handleProxy(req, res) {
-  var raw = String(req.url || "");
+function handleProxy(req, res, raw) {
   var rest = raw.slice("/proxy/".length);
   var slash = rest.indexOf("/");
   var optsText = slash >= 0 ? rest.slice(0, slash) : rest;
@@ -244,7 +244,7 @@ function handleProxy(req, res) {
       reports[trace].touched = Date.now();
     }
     var host = String(req.headers.host || "127.0.0.1:" + (server && server.address() ? server.address().port : 2710));
-    var baseUrl = "http://" + host;
+    var baseUrl = settings.publicBase || "http://" + host;
 
     if (method === "GET" && status >= 200 && status < 300 && isPlaylist(response, finalUrl)) {
       var chunks = [];
@@ -301,6 +301,13 @@ function handleProxy(req, res) {
 
 function handle(req, res) {
   var path = String(req.url || "/");
+  if (settings.prefix) {
+    if (path.indexOf(settings.prefix + "/") !== 0) {
+      sendError(res, 404, "Not found");
+      return;
+    }
+    path = path.slice(settings.prefix.length);
+  }
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": "*",
@@ -319,18 +326,21 @@ function handle(req, res) {
     return;
   }
   if (path.indexOf("/proxy/") === 0) {
-    handleProxy(req, res);
+    handleProxy(req, res, path);
     return;
   }
   sendError(res, 404, "Not found");
 }
 
-exports.start = function (port, reason) {
+exports.start = function (port, reason, options) {
   if (server) return server;
   info.reason = String(reason || "");
+  settings.prefix = String((options && options.prefix) || "").replace(/\/+$/, "");
+  settings.publicBase = String((options && options.publicBase) || "").replace(/\/+$/, "");
   server = http.createServer(handle);
   server.on("error", function () {});
-  server.listen(Number(port || 2710));
+  if (options && options.host) server.listen(Number(port || 2710), options.host);
+  else server.listen(Number(port || 2710));
   return server;
 };
 
