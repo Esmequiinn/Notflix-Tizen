@@ -21,6 +21,7 @@ const state = {
   longTasks: { count: 0, total: 0 },
   images: { count: 0, bytes: 0, slow: 0 },
   playbackErrors: [],
+  serviceNote: "",
   lastLatency: 0,
   overlay: null,
   report: null,
@@ -358,6 +359,7 @@ function reportMarkup() {
           <h3>Congelones más largos</h3>
           <ol>${freezeRows || "<li>Ninguno</li>"}</ol>
           <h3>Errores al reproducir</h3>
+          <p class="nf-perf-service">Servicio de reproducción: ${escapeText(state.serviceNote || "sin iniciar")}</p>
           <ul class="nf-perf-errors">${errorRows || "<li>Ninguno</li>"}</ul>
         </div>
         <div>
@@ -399,6 +401,10 @@ export function resetPerfData() {
   state.images = { count: 0, bytes: 0, slow: 0 };
   state.playbackErrors = [];
   state.startedAt = Date.now();
+}
+
+export function setServiceNote(text) {
+  state.serviceNote = String(text || "");
 }
 
 export function recordPlaybackError(message, candidate) {

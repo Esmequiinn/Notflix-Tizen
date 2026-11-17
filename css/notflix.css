@@ -3828,6 +3828,12 @@ html.notflix-ui body {
   padding-left: 30px;
 }
 
+.nf-perf-service {
+  margin: 0 0 4px;
+  font-size: 19px;
+  color: #b3b3b3;
+}
+
 .nf-perf-errors li {
   max-width: 840px;
   max-height: 60px;

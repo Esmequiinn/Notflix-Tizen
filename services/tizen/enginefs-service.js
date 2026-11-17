@@ -198,9 +198,35 @@ function configureRuntimeEnv() {
   });
 }
 
+function supportsFullRuntime() {
+  var major = Number(
+    String(process.version || "")
+      .replace(/^v/, "")
+      .split(".")[0] || 0
+  );
+  if (major && major < 10) return false;
+  try {
+    new RegExp("(?<=a)b");
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function startLiteProxy(reason) {
+  started = true;
+  require("./runtime/lite-proxy.cjs").start(Number(process.env.PORT || 2710) || 2710, reason);
+}
+
 function startEngineFsRuntime() {
   if (started) {
     diagnostic("start ignored", { reason: "runtime already requested" });
+    return;
+  }
+  if (!supportsFullRuntime()) {
+    process.env = process.env || {};
+    process.env.PORT = process.env.PORT || "2710";
+    startLiteProxy("old runtime " + (process.version || ""));
     return;
   }
   diagnostic("start begin", { runtimeModule: "./runtime/media-http.cjs" });
@@ -233,6 +259,14 @@ module.exports.onStart = function () {
     started = false;
     diagnostic("onStart failed", { error: diagnosticError(error) });
     warn("local EngineFS runtime failed to start", error && error.stack ? error.stack : error);
+    try {
+      startLiteProxy(String((error && error.message) || error || "start failed").slice(0, 160));
+    } catch (liteError) {
+      warn(
+        "lite proxy failed to start",
+        liteError && liteError.stack ? liteError.stack : liteError
+      );
+    }
   }
 };
 
@@ -240,6 +274,9 @@ function stopEngineFsRuntime() {
   diagnostic("onExit", { service: "EngineFsService", port: process.env.PORT || "2710" });
   try {
     require("./runtime/tx3g-subtitle-service.cjs").stop();
+  } catch (_) {}
+  try {
+    require("./runtime/lite-proxy.cjs").stop();
   } catch (_) {}
   requestRemoveAll();
 }

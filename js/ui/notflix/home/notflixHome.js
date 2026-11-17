@@ -1,6 +1,7 @@
 import { Platform } from "../../../platform/index.js";
 import { TizenEngineFsService } from "../../../platform/tizen/tizenEngineFsService.js";
 import { consumePlaybackMark } from "../playback/playbackMark.js";
+import { setServiceNote } from "../diagnostics/notflixPerf.js";
 import { Router } from "../../navigation/routerState.js";
 import { isNotflixActive } from "../notflixAppearance.js";
 import {
@@ -177,11 +178,20 @@ function warmPlaybackService() {
   setTimeout(() => {
     void TizenEngineFsService.ensureStarted({ purpose: "playback-proxy" })
       .then((result) => {
-        if (result?.status !== "success") playbackServiceWarmed = false;
+        if (result?.status !== "success") {
+          setServiceNote(
+            `no responde (${String(result?.detail || result?.status || "").slice(0, 80)})`
+          );
+          return;
+        }
+        const settings = result.settings || {};
+        setServiceNote(
+          settings.lite
+            ? `ligero ${settings.node || ""}${settings.reason ? ` · ${String(settings.reason).slice(0, 60)}` : ""}`
+            : "completo"
+        );
       })
-      .catch(() => {
-        playbackServiceWarmed = false;
-      });
+      .catch((error) => setServiceNote(`error (${String(error?.message || error).slice(0, 80)})`));
   }, 4000);
 }
 
