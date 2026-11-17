@@ -166,6 +166,7 @@ export function createPlayerControllerMethods18() {
           return;
         }
         if (Platform.isTizen() && proxyResult?.status === "unavailable") {
+          this.lastProxyFailureDetail = String(proxyResult?.detail || "unavailable");
           const avplayEngine = this.getPlatformAvplayEngineName();
           const canPreserveHeadersWithAvPlay = !TizenPlaybackProxy.requiresProxy(requestedUrl, requestHeaders, {
             playbackEngine: avplayEngine,
@@ -271,9 +272,7 @@ export function createPlayerControllerMethods18() {
       this.video.load();
       this.resetNativeMediaState();
       if (tizenProxyUnavailable) {
-        this.isPlaying = false;
-        this.stopProgressSaving();
-        throw new Error("Tizen playback proxy unavailable; declared request headers cannot be forwarded");
+        console.warn("Tizen playback proxy unavailable; trying the source without its request headers");
       }
       const nativeFallbackEngine = this.isLikelyHlsMimeType(sourceType)
         ? "native-hls"

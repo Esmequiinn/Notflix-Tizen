@@ -4,7 +4,7 @@ import { getWrtServiceClass, startWithWrtServiceClass } from "./tizenWrtService.
 
 const LOCAL_BASE_URLS = ["http://127.0.0.1:2710", "http://localhost:2710"];
 
-const START_TIMEOUT_MS = 12000;
+const START_TIMEOUT_MS = 25000;
 const PROBE_TIMEOUT_MS = 2500;
 const SERVICE_START_CALL_TIMEOUT_MS = 4000;
 const TIZEN_DEFAULT_OPERATION = "http://tizen.org/appcontrol/operation/default";

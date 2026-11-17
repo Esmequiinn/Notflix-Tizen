@@ -3829,10 +3829,12 @@ html.notflix-ui body {
 }
 
 .nf-perf-errors li {
-  max-width: 820px;
+  max-width: 840px;
+  max-height: 60px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  font-size: 19px;
+  line-height: 30px;
+  word-break: break-all;
 }
 
 .nf-perf-cols {

@@ -214,9 +214,28 @@ export function createPlayerScreenMethods62() {
       return ["all", ...addons];
     },
     getOrderedStreamCandidates() {
-      return orderStreamsByAddonOrder(this.streamCandidates || [], [], {
+      const list = this.streamCandidates || [];
+      const cached = this.orderedStreamCache;
+      if (
+        cached &&
+        cached.list === list &&
+        cached.length === list.length &&
+        cached.first === list[0] &&
+        cached.last === list[list.length - 1]
+      ) {
+        return cached.value;
+      }
+      const value = orderStreamsByAddonOrder(list, [], {
         isDirectDebrid: (stream) => DebridStreamPresentation.isDirectDebrid(stream)
       });
+      this.orderedStreamCache = {
+        list,
+        length: list.length,
+        first: list[0],
+        last: list[list.length - 1],
+        value
+      };
+      return value;
     },
     getFilteredSources(orderedStreams = this.getOrderedStreamCandidates()) {
       if (this.sourceFilter === "all") {

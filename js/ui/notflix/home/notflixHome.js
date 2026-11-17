@@ -1,3 +1,5 @@
+import { Platform } from "../../../platform/index.js";
+import { TizenEngineFsService } from "../../../platform/tizen/tizenEngineFsService.js";
 import { consumePlaybackMark } from "../playback/playbackMark.js";
 import { Router } from "../../navigation/routerState.js";
 import { isNotflixActive } from "../notflixAppearance.js";
@@ -167,9 +169,26 @@ function warmTrailers(screen) {
   setTimeout(tryWarm, WARM_DELAY_MS);
 }
 
+let playbackServiceWarmed = false;
+
+function warmPlaybackService() {
+  if (playbackServiceWarmed || !Platform.isTizen?.()) return;
+  playbackServiceWarmed = true;
+  setTimeout(() => {
+    void TizenEngineFsService.ensureStarted({ purpose: "playback-proxy" })
+      .then((result) => {
+        if (result?.status !== "success") playbackServiceWarmed = false;
+      })
+      .catch(() => {
+        playbackServiceWarmed = false;
+      });
+  }, 4000);
+}
+
 function runIdleWork(screen) {
   if (!active(screen) || !screen.container?.isConnected) return;
   screen.nfWarm = true;
+  warmPlaybackService();
   enrichHero(screen);
   warmTrailers(screen);
   if (!screen.nfHeroRotateTimer && !screen.nfHeroTrailerHost) scheduleHeroIdle(screen);

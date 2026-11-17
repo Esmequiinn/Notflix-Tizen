@@ -410,7 +410,7 @@ export function recordPlaybackError(message, candidate) {
   const text = String(message || "")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 90);
+    .slice(0, 170);
   const time = new Date();
   state.playbackErrors.push({
     at: `${String(time.getHours()).padStart(2, "0")}:${String(time.getMinutes()).padStart(2, "0")}`,

@@ -1,3 +1,4 @@
+import { PlayerController } from "../../../core/player/playerController.js";
 import { PlayerSettingsStore } from "../../../data/local/playerSettingsStore.js";
 import {
   StreamLinkCacheStore,
@@ -181,7 +182,19 @@ export function withNotflixPlayer(base) {
       return Math.min(value, FALLBACK_STARTUP_STALL_MS);
     },
     showStartupError(...args) {
-      recordPlaybackError(args[0], this.getCurrentStreamCandidate?.());
+      const options = args[1] || {};
+      const proxyNote = PlayerController.lastProxyFailureDetail;
+      PlayerController.lastProxyFailureDetail = "";
+      recordPlaybackError(
+        [
+          options.mediaErrorCode ? `#${options.mediaErrorCode}` : "",
+          options.detail || options.resolverDetail || args[0],
+          proxyNote ? `proxy: ${proxyNote}` : ""
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        options.streamCandidate || this.getCurrentStreamCandidate?.()
+      );
       dropCachedLink(this);
       if (tryFallback(this)) return undefined;
       if (this.params?.nfCachedLink && reloadAndRetry(this, args, base)) return undefined;
