@@ -22,6 +22,7 @@ const state = {
   images: { count: 0, bytes: 0, slow: 0 },
   playbackErrors: [],
   serviceNote: "",
+  callers: {},
   lastLatency: 0,
   overlay: null,
   report: null,
@@ -152,11 +153,37 @@ function recordCall(label, ms) {
   if (ms >= SLOW_CALL_MS) entry.slow += 1;
 }
 
+const TRACED_METHODS = ["render", "requestRender", "requestBackgroundRender"];
+const SKIPPED_FRAMES =
+  /^(wrapped|apply|call|Array\.|Promise|new Promise|<anonymous>|requestRender|requestBackgroundRender|render)$/;
+
+function callerName() {
+  const lines = String(new Error().stack || "")
+    .split("\n")
+    .slice(3);
+  for (const line of lines) {
+    const match = line.match(/at\s+(?:async\s+)?([^\s(]+)/);
+    if (!match) continue;
+    const name = match[1].replace(/^(Object|HTMLDocument|Window|HTMLElement)\./, "");
+    if (!name || name.includes("/") || SKIPPED_FRAMES.test(name) || name.length < 4) continue;
+    return name.slice(0, 40);
+  }
+  return "?";
+}
+
+function recordCaller(label) {
+  const callers = state.callers[label] || (state.callers[label] = {});
+  const name = callerName();
+  callers[name] = (callers[name] || 0) + 1;
+}
+
 function wrapMethod(target, method, label) {
   const original = target?.[method];
   if (typeof original !== "function" || original.nfPerfWrapped) return;
+  const traced = TRACED_METHODS.includes(method);
   const wrapped = function (...args) {
     if (!state.enabled) return original.apply(this, args);
+    if (traced) recordCaller(label);
     const started = now();
     try {
       return original.apply(this, args);
@@ -190,6 +217,8 @@ const WATCHED_METHODS = [
   "hydrateHomeLazyImages",
   "scheduleHomeLazyImageHydration",
   "cleanup",
+  "requestRender",
+  "requestBackgroundRender",
   "applyHeroToDom",
   "requestBackgroundRender",
   "restoreFocusState",
@@ -358,6 +387,7 @@ function reportMarkup() {
         <div>
           <h3>Congelones más largos</h3>
           <ol>${freezeRows || "<li>Ninguno</li>"}</ol>
+          <p class="nf-perf-service">Inicio se redibuja por: ${escapeText(callerSummary("Inicio.render", "Inicio.requestRender", "Inicio.requestBackgroundRender"))}</p>
           <h3>Errores al reproducir</h3>
           <p class="nf-perf-service">Servicio de reproducción: ${escapeText(state.serviceNote || "sin iniciar")}</p>
           <ul class="nf-perf-errors">${errorRows || "<li>Ninguno</li>"}</ul>
@@ -400,7 +430,22 @@ export function resetPerfData() {
   state.longTasks = { count: 0, total: 0 };
   state.images = { count: 0, bytes: 0, slow: 0 };
   state.playbackErrors = [];
+  state.callers = {};
   state.startedAt = Date.now();
+}
+
+function callerSummary(...labels) {
+  const merged = {};
+  labels.forEach((label) => {
+    Object.entries(state.callers[label] || {}).forEach(([name, count]) => {
+      merged[name] = (merged[name] || 0) + count;
+    });
+  });
+  const top = Object.entries(merged)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => `${name}×${count}`);
+  return top.length ? top.join(" · ") : "-";
 }
 
 export function setServiceNote(text) {

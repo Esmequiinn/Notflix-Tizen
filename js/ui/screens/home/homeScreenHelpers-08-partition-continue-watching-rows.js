@@ -1,3 +1,4 @@
+import { watchedItemIdentityValues } from "../../../data/repository/watchedIdentity.js";
 import { Router } from "../../navigation/routerState.js";
 
 import { ScreenUtils } from "../../navigation/screen.js";
@@ -195,7 +196,40 @@ import { t, resolveImdbRating } from "./homeScreenHelpers-01-modern-sidebar-pill
 import { formatDurationMinutes, parseRuntimeMinutes } from "./homeScreenHelpers-04-animate-hero-logo-swap.js";
 import { progressFractionForContinueWatching } from "./homeScreenHelpers-06-resolve-trailer-source.js";
 
-export function partitionContinueWatchingRows(items = [], mode = "default") {
+function continueWatchingKeys(item = {}) {
+  const keys = Array.from(watchedItemIdentityValues(item))
+    .map((value) =>
+      String(value || "")
+        .trim()
+        .toLowerCase()
+    )
+    .filter(Boolean);
+  const type = String(item.contentType || item.type || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^tv$/, "series");
+  const title = String(item.title || item.name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9áéíóúñü]+/gi, " ")
+    .trim();
+  if (title) keys.push(`title:${type}:${title}`);
+  return keys;
+}
+
+export function dedupeContinueWatchingItems(items = []) {
+  const seen = new Set();
+  return (Array.isArray(items) ? items : []).filter((item) => {
+    const keys = continueWatchingKeys(item);
+    if (!keys.length) return true;
+    if (keys.some((key) => seen.has(key))) return false;
+    keys.forEach((key) => seen.add(key));
+    return true;
+  });
+}
+
+export function partitionContinueWatchingRows(rawItems = [], mode = "default") {
+  const items = dedupeContinueWatchingItems(rawItems);
   const normalizedMode = String(mode || "default")
     .trim()
     .toLowerCase();

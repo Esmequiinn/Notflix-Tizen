@@ -3439,6 +3439,7 @@
     <string name="notflix_library_empty_message">Añade títulos con el botón + de cualquier tarjeta o ficha</string>
     <string name="notflix_calendar_title">Calendario</string>
     <string name="notflix_calendar_source_trakt">Según tu cuenta de Trakt</string>
+    <string name="notflix_calendar_source_simkl">Según tu cuenta de Simkl</string>
     <string name="notflix_calendar_source_nuvio">Según tus series en Notflix</string>
     <string name="notflix_calendar_empty">No hay estrenos de tus series en los próximos 30 días</string>
     <string name="notflix_calendar_today">Hoy</string>
@@ -3526,6 +3527,7 @@
     <string name="notflix_ap_language_en">Solo inglés</string>
     <string name="notflix_ap_order_language">Primero el idioma</string>
     <string name="notflix_ap_order_quality">Primero la calidad</string>
+    <string name="notflix_ap_order_addon">Primero los add-ons</string>
     <string name="notflix_ap_addons_any">Cualquier add-on</string>
     <string name="notflix_ap_priority_title">Lista de prioridad</string>
     <string name="notflix_ap_priority_sub">Prueba tus add-ons, calidades e idioma en orden. Si nada coincide, se usa la reproducción automática normal.</string>

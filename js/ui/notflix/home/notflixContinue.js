@@ -1,5 +1,5 @@
 import { Router } from "../../navigation/routerState.js";
-import { getCardOpeningDelayMs, getNotflixOptions } from "../notflixOptions.js";
+import { getCardImageWaitMs, getCardOpeningDelayMs, getNotflixOptions } from "../notflixOptions.js";
 import { normalizeContinueWatchingItem } from "../../screens/home/homeScreenHelpers-09-normalize-continue-watching-item.js";
 import { escapeText, nt } from "./notflixHomeMarkup.js";
 import { cardLogoOf, preloadImage, sizedImage, waitForImage } from "./notflixPreload.js";
@@ -119,15 +119,21 @@ export function scheduleContinueExpand(screen, card) {
   if (item?.logo) preloadImage(cardLogoOf(item));
   const opening = getCardOpeningDelayMs();
   const delay =
-    getNotflixOptions().cardOpening === "instant" ? opening * 2 : Math.max(MIN_IDLE_MS, opening);
+    getNotflixOptions().cardOpening === "instant" ? opening : Math.max(MIN_IDLE_MS, opening);
   const token = (screen.nfCwToken || 0) + 1;
   screen.nfCwToken = token;
-  screen.nfCwTimer = setTimeout(() => {
+  const run = () => {
     screen.nfCwTimer = null;
     if (Router.getCurrent?.() !== "home") return;
-    void waitForImage(image, 900).then(() => {
+    const lastKey = Number(screen.nfLastKeyAt || 0);
+    if (lastKey > Number(screen.nfKeyUpAt || 0) && Date.now() - lastKey < 450) {
+      screen.nfCwTimer = setTimeout(run, 70);
+      return;
+    }
+    void waitForImage(image, getCardImageWaitMs(900)).then(() => {
       if (screen.nfCwToken !== token || Router.getCurrent?.() !== "home") return;
       expand(screen, card);
     });
-  }, delay);
+  };
+  screen.nfCwTimer = setTimeout(run, delay);
 }

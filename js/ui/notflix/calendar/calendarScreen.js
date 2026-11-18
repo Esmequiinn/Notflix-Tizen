@@ -154,7 +154,9 @@ export const CalendarScreen = {
     const sourceText =
       this.state.source === "trakt"
         ? nt("notflix_calendar_source_trakt", "From your Trakt account")
-        : nt("notflix_calendar_source_nuvio", "From your series in Notflix");
+        : this.state.source === "simkl"
+          ? nt("notflix_calendar_source_simkl", "From your Simkl account")
+          : nt("notflix_calendar_source_nuvio", "From your series in Notflix");
     this.container.innerHTML = `
       <div class="home-shell nf-calendar-shell">
         ${renderRootSidebar({ selectedRoute: "calendar", profile: this.sidebarProfile, layout: this.layoutPrefs, expanded: false })}

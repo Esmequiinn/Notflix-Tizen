@@ -3862,3 +3862,9 @@ html.notflix-ui body {
 [data-action="toggleTrailer"].nf-busy {
   opacity: 0.55;
 }
+
+.notflix-ui #home .home-row,
+.notflix-ui #home .home-row-continue,
+.notflix-ui .library-shell .nf-ml-row {
+  contain: layout style;
+}

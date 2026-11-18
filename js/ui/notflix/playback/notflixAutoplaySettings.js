@@ -27,6 +27,7 @@ function languageLabel(id) {
 }
 
 function orderLabel(id) {
+  if (id === "addon") return nt("notflix_ap_order_addon", "Add-ons first");
   return id === "language"
     ? nt("notflix_ap_order_language", "Language first")
     : nt("notflix_ap_order_quality", "Quality first");
@@ -152,10 +153,10 @@ export function registerNotflixAutoplayActions(screen, addonRepository) {
   screen.actionMap.set("playback:nf:order", () => {
     screen.openOptionDialog({
       title: nt("notflix_ap_order_title", "Sort first by"),
-      options: ["quality", "language"].map((id) => ({ id, label: orderLabel(id) })),
+      options: ["addon", "quality", "language"].map((id) => ({ id, label: orderLabel(id) })),
       selectedId: getNotflixAutoplay().order,
       returnFocusKey: "playback:nf:order",
-      onSelect: (option) => setNotflixAutoplay({ order: option.id })
+      onSelect: (option) => setNotflixAutoplay({ order: option.id, orderVersion: 2 })
     });
   });
   screen.actionMap.set("playback:nf:attempts", () => {

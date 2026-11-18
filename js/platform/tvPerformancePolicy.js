@@ -2,6 +2,8 @@ export const HOME_TV_PERFORMANCE_POLICY = Object.freeze({
   modernArtworkEvictIdleMs: 1200,
   modernArtworkEvictMarginPx: 2600,
   legacyArtworkEvictMarginPx: 1600,
+  legacyArtworkEvictIdleMs: 1500,
+  roomyLegacyArtworkEvictMarginPx: 3400,
   modernTrailerCleanupDelayMs: 2400,
   legacyTrailerCleanupDelayMs: 80,
   modernTrailerMountGraceMs: 1000,
@@ -27,8 +29,10 @@ export function getDeviceMemoryGb() {
 }
 
 export function getArtworkEvictIdleMs(profile = null, deviceMemory = 0) {
-  if (isLowMemoryDevice(deviceMemory)) return 0;
-  return isModernTvProfile(profile) ? HOME_TV_PERFORMANCE_POLICY.modernArtworkEvictIdleMs : 0;
+  if (isModernTvProfile(profile) && !isLowMemoryDevice(deviceMemory)) {
+    return HOME_TV_PERFORMANCE_POLICY.modernArtworkEvictIdleMs;
+  }
+  return HOME_TV_PERFORMANCE_POLICY.legacyArtworkEvictIdleMs;
 }
 
 export function getArtworkEvictMarginPx(profile = null, deviceMemory = 0) {
@@ -37,7 +41,7 @@ export function getArtworkEvictMarginPx(profile = null, deviceMemory = 0) {
   }
   return isModernTvProfile(profile)
     ? HOME_TV_PERFORMANCE_POLICY.modernArtworkEvictMarginPx
-    : HOME_TV_PERFORMANCE_POLICY.legacyArtworkEvictMarginPx;
+    : HOME_TV_PERFORMANCE_POLICY.roomyLegacyArtworkEvictMarginPx;
 }
 
 export function getTrailerCleanupDelayMs(profile = null) {

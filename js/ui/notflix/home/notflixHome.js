@@ -3,6 +3,7 @@ import { Router } from "../../navigation/routerState.js";
 import { isNotflixActive } from "../notflixAppearance.js";
 import {
   getCardOpeningDelayMs,
+  getCardImageWaitMs,
   getCardScale,
   getNotflixOptions,
   getTrailerIdleMs
@@ -343,6 +344,10 @@ function expandCard(screen, card) {
 
 const EXPAND_IMAGE_WAIT_MS = 900;
 const ROW_PEEK_PX = 26;
+const RENDER_INPUT_QUIET_MS = 1800;
+const HELD_RETRY_MS = 70;
+const HELD_WINDOW_MS = 450;
+const RENDER_MOUNT_QUIET_MS = 2500;
 const PRELOAD_DWELL_MS = 180;
 const NEIGHBOR_PRELOAD = 2;
 
@@ -371,14 +376,27 @@ function scheduleExpand(screen, card) {
   const delay = getCardOpeningDelayMs();
   const token = (screen.nfExpandToken || 0) + 1;
   screen.nfExpandToken = token;
-  screen.nfExpandTimer = setTimeout(() => {
+  const run = () => {
     screen.nfExpandTimer = null;
     if (Router.getCurrent?.() !== "home") return;
-    void waitForImage(backdropOf(cardItem(screen, card)), EXPAND_IMAGE_WAIT_MS).then(() => {
+    if (isKeyHeld(screen)) {
+      screen.nfExpandTimer = setTimeout(run, HELD_RETRY_MS);
+      return;
+    }
+    void waitForImage(
+      backdropOf(cardItem(screen, card)),
+      getCardImageWaitMs(EXPAND_IMAGE_WAIT_MS)
+    ).then(() => {
       if (screen.nfExpandToken !== token || Router.getCurrent?.() !== "home") return;
       expandCard(screen, card);
     });
-  }, delay);
+  };
+  screen.nfExpandTimer = setTimeout(run, delay);
+}
+
+function isKeyHeld(screen) {
+  const lastKey = Number(screen.nfLastKeyAt || 0);
+  return lastKey > Number(screen.nfKeyUpAt || 0) && Date.now() - lastKey < HELD_WINDOW_MS;
 }
 
 export function onNotflixFocus(screen, target) {
@@ -629,9 +647,20 @@ export function withNotflixHome(base) {
     ...base,
     ...withHoldGuard(base, ["startPendingContinueWatchingHold"], isNotflixActive),
     mount(...args) {
+      this.nfMountedAt = this.hasLoadedOnce ? Date.now() : 0;
       const result = base.mount.apply(this, args);
       if (consumePlaybackMark() && isNotflixActive()) scheduleContinueRefresh(this);
       return result;
+    },
+    shouldDeferHomeRenderForInput(...args) {
+      if (base.shouldDeferHomeRenderForInput.apply(this, args)) return true;
+      if (!active(this) || !this.hasLoadedOnce || this.isInitialHomeLoading) return false;
+      const now = Date.now();
+      const lastInput = Math.max(Number(this.lastHomeInputAt || 0), Number(this.nfLastKeyAt || 0));
+      return (
+        now - lastInput < RENDER_INPUT_QUIET_MS ||
+        now - Number(this.nfMountedAt || 0) < RENDER_MOUNT_QUIET_MS
+      );
     },
     evictDistantHomeLazyImages(...args) {
       if (isNotflixActive()) {
@@ -643,6 +672,7 @@ export function withNotflixHome(base) {
       return base.evictDistantHomeLazyImages.apply(this, args);
     },
     onKeyUp(event) {
+      this.nfKeyUpAt = Date.now();
       const result = base.onKeyUp?.call(
         this,
         isNotflixActive() ? shortPressEvent(this, event) : event

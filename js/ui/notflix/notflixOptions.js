@@ -3,14 +3,14 @@ import { ProfileManager } from "../../core/profile/profileManager.js";
 
 const STORE_KEY = "notflixOptions";
 
-export const CARD_OPENING = Object.freeze({ instant: 150, normal: 1200, slow: 2000 });
+export const CARD_OPENING = Object.freeze({ instant: 80, normal: 1200, slow: 2000 });
 export const CARD_SIZE = Object.freeze({ tiny: 55, small: 66, medium: 78, large: 100 });
 export const TRAILER_IDLE = Object.freeze({ short: 3000, normal: 5000, long: 8000 });
 export const HERO_ROTATION = Object.freeze({ off: 0, normal: 9000, slow: 15000 });
 
 const DEFAULTS = Object.freeze({
   homeMotion: "normal",
-  cardOpening: "normal",
+  cardOpening: "instant",
   cardSize: "medium",
   trailerIdle: "normal",
   heroRotation: "normal",
@@ -45,6 +45,10 @@ function readAll() {
         sizeVersion: 2,
         cardSize: entry.cardSize === "tiny" ? "medium" : entry.cardSize
       };
+      migrated = true;
+    }
+    if (cache[id].openingVersion !== 1) {
+      cache[id] = { ...cache[id], openingVersion: 1, cardOpening: "instant" };
       migrated = true;
     }
     if (cache[id].soundVersion !== 1) {
@@ -85,7 +89,12 @@ export function setNotflixOption(key, value) {
   if (!(key in DEFAULTS)) return getNotflixOptions();
   const all = { ...readAll() };
   const id = profileKey();
-  all[id] = { ...sanitize({ ...all[id], [key]: value }), sizeVersion: 2, soundVersion: 1 };
+  all[id] = {
+    ...sanitize({ ...all[id], [key]: value }),
+    sizeVersion: 2,
+    soundVersion: 1,
+    openingVersion: 1
+  };
   cache = all;
   LocalStore.set(STORE_KEY, all);
   listeners.forEach((listener) => {
@@ -103,6 +112,10 @@ export function onNotflixOptionsChange(listener) {
 
 export function getCardOpeningDelayMs(options = getNotflixOptions()) {
   return CARD_OPENING[options.cardOpening] || CARD_OPENING.normal;
+}
+
+export function getCardImageWaitMs(fallback, options = getNotflixOptions()) {
+  return options.cardOpening === "instant" ? 140 : fallback;
 }
 
 export function getCardScale(options = getNotflixOptions()) {

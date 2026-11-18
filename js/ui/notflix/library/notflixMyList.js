@@ -1,7 +1,7 @@
 import { Router } from "../../navigation/routerState.js";
 import { ScreenUtils } from "../../navigation/screen.js";
 import { isNotflixActive } from "../notflixAppearance.js";
-import { getCardOpeningDelayMs, getCardScale } from "../notflixOptions.js";
+import { getCardImageWaitMs, getCardOpeningDelayMs, getCardScale } from "../notflixOptions.js";
 import { escapeText, expandedArtMarkup, nt } from "../home/notflixHomeMarkup.js";
 import { localizedDetails } from "../home/notflixLocalize.js";
 import { activateRow, rowInfoMarkup, setRowInfo } from "../home/notflixRowInfo.js";
@@ -123,7 +123,8 @@ function trackOffset(screen, card) {
   const track = card.parentNode;
   if (!track) return;
   const peek = card.previousElementSibling ? ROW_PEEK_PX : 0;
-  const offset = Math.max(0, card.offsetLeft - peek);
+  const start = track.firstElementChild?.offsetLeft || 0;
+  const offset = Math.max(0, card.offsetLeft - start - peek);
   if (String(offset) === track.dataset.nfOffset) return;
   track.dataset.nfOffset = String(offset);
   track.style.transform = `translate3d(${-offset}px, 0, 0)`;
@@ -175,7 +176,7 @@ function scheduleExpand(screen, card) {
   screen.nfMlTimer = setTimeout(() => {
     screen.nfMlTimer = null;
     const item = cardItem(screen, card);
-    void waitForImage(backdropOf(item), 900).then(() => {
+    void waitForImage(backdropOf(item), getCardImageWaitMs(900)).then(() => {
       if (screen.nfMlToken !== token || Router.getCurrent?.() !== "library") return;
       if (!card.isConnected || !card.classList.contains("focused")) return;
       card.insertAdjacentHTML("beforeend", expandedArtMarkup(cardItem(screen, card) || item));

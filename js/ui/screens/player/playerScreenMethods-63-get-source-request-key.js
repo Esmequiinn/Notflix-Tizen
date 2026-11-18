@@ -1,7 +1,7 @@
 import * as internals from "./playerScreenContext.js";
 
-const SOURCES_RENDER_CHUNK = 24;
-const SOURCES_RENDER_AHEAD = 12;
+const SOURCES_RENDER_CHUNK = 10;
+const SOURCES_RENDER_AHEAD = 8;
 
 export function createPlayerScreenMethods63() {
   const {

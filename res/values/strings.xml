@@ -3437,6 +3437,7 @@
     <string name="notflix_library_empty_message">Add titles with the + button on any card or detail page</string>
     <string name="notflix_calendar_title">Calendar</string>
     <string name="notflix_calendar_source_trakt">From your Trakt account</string>
+    <string name="notflix_calendar_source_simkl">From your Simkl account</string>
     <string name="notflix_calendar_source_nuvio">From your series in Notflix</string>
     <string name="notflix_calendar_empty">No new episodes of your series in the next 30 days</string>
     <string name="notflix_calendar_today">Today</string>
@@ -3524,6 +3525,7 @@
     <string name="notflix_ap_language_en">English only</string>
     <string name="notflix_ap_order_language">Language first</string>
     <string name="notflix_ap_order_quality">Quality first</string>
+    <string name="notflix_ap_order_addon">Add-ons first</string>
     <string name="notflix_ap_addons_any">Any add-on</string>
     <string name="notflix_ap_priority_title">Priority list</string>
     <string name="notflix_ap_priority_sub">Try your add-ons, qualities and language in order. If nothing matches, the normal auto-play is used.</string>

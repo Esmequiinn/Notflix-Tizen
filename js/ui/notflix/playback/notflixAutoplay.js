@@ -29,7 +29,7 @@ const DEFAULTS = Object.freeze({
   addons: [],
   qualities: "uhd_first",
   language: "any",
-  order: "quality",
+  order: "addon",
   fallbackEnabled: true,
   fallbackAttempts: 3
 });
@@ -52,7 +52,11 @@ function sanitize(value) {
     : [];
   if (!QUALITY_PRESETS[out.qualities]) out.qualities = DEFAULTS.qualities;
   if (!LANGUAGE_PRESETS[out.language]) out.language = DEFAULTS.language;
-  if (out.order !== "language") out.order = "quality";
+  if (out.orderVersion !== 2) {
+    out.order = "addon";
+    out.orderVersion = 2;
+  }
+  if (!["addon", "quality", "language"].includes(out.order)) out.order = "addon";
   if (!FALLBACK_ATTEMPTS.includes(Number(out.fallbackAttempts)))
     out.fallbackAttempts = DEFAULTS.fallbackAttempts;
   out.fallbackAttempts = Number(out.fallbackAttempts);
@@ -116,14 +120,24 @@ export function streamLanguages(stream) {
   return languages;
 }
 
-function buildRules(config) {
-  const addons = config.addons.length ? config.addons : [null];
+function buildRules(config, poolAddons = []) {
+  const addons = config.addons.length
+    ? config.addons
+    : config.order === "addon" && poolAddons.length
+      ? poolAddons
+      : [null];
   const languages = LANGUAGE_PRESETS[config.language].length
     ? LANGUAGE_PRESETS[config.language]
     : [null];
   const qualities = QUALITY_PRESETS[config.qualities];
   const rules = [];
-  if (config.order === "language") {
+  if (config.order === "addon") {
+    addons.forEach((addon) =>
+      qualities.forEach((quality) =>
+        languages.forEach((language) => rules.push({ addon, quality, language }))
+      )
+    );
+  } else if (config.order === "language") {
     languages.forEach((language) =>
       qualities.forEach((quality) =>
         addons.forEach((addon) => rules.push({ addon, quality, language }))
@@ -149,7 +163,10 @@ export function selectPriorityStream(streams, config = getNotflixAutoplay()) {
       languages: streamLanguages(stream)
     }));
   if (!prepared.length) return null;
-  for (const rule of buildRules(config)) {
+  const poolAddons = prepared
+    .map((entry) => entry.addon)
+    .filter((addon, index, list) => addon && list.indexOf(addon) === index);
+  for (const rule of buildRules(config, poolAddons)) {
     const match = prepared.find(
       (entry) =>
         (!rule.addon || entry.addon === rule.addon) &&

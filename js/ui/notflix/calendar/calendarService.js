@@ -6,11 +6,15 @@ import { isHiddenTitle } from "../profiles/hiddenTitles.js";
 import { isAgeLimitActive, isTitleAllowed, resolveAges } from "../profiles/ageGate.js";
 import { ProfileManager } from "../../../core/profile/profileManager.js";
 import { TMDB_API_KEY } from "../../../config.js";
+import { SimklAuthService } from "../../../data/repository/simklAuthService.js";
+import { SimklSyncService } from "../../../data/repository/simklSyncService.js";
 
 export const CALENDAR_DAYS = 30;
 const CACHE_MS = 15 * 60 * 1000;
 const MAX_ENTRIES = 160;
 const AGE_TIMEOUT_MS = 5000;
+const SIMKL_MAX_SHOWS = 60;
+const SIMKL_CONCURRENCY = 6;
 let cachedResult = null;
 
 function isoDay(date) {
@@ -59,6 +63,80 @@ async function traktEntries(today) {
       };
     })
     .filter(Boolean);
+}
+
+async function tmdbJson(path) {
+  const apiKey = String(TMDB_API_KEY || "").trim();
+  if (!apiKey) return null;
+  const { fetchTmdbJson } = await import("../../../core/tmdb/tmdbService.js");
+  const join = path.includes("?") ? "&" : "?";
+  return fetchTmdbJson(
+    `https://api.themoviedb.org/3${path}${join}api_key=${encodeURIComponent(apiKey)}`
+  ).catch(() => null);
+}
+
+async function tmdbIdForShow(ids = {}) {
+  if (ids.tmdb) return String(ids.tmdb);
+  const imdb = String(ids.imdb || "").trim();
+  if (!imdb) return "";
+  const found = await tmdbJson(`/find/${encodeURIComponent(imdb)}?external_source=imdb_id`);
+  const match = Array.isArray(found?.tv_results) ? found.tv_results[0] : null;
+  return match?.id ? String(match.id) : "";
+}
+
+async function simklShowEntry(show, today, limit) {
+  const ids = show?.ids || {};
+  const tmdbId = await tmdbIdForShow(ids);
+  if (!tmdbId) return null;
+  const details = await tmdbJson(`/tv/${encodeURIComponent(tmdbId)}?language=es-MX`);
+  const next = details?.next_episode_to_air;
+  const airDate = parseDate(next?.air_date ? `${next.air_date}T12:00:00` : "");
+  if (!airDate || airDate < today || airDate > limit) return null;
+  const imdb = String(ids.imdb || "");
+  return {
+    contentId: imdb || `tmdb:${tmdbId}`,
+    contentType: "series",
+    tmdbId,
+    title: String(details?.name || show?.title || ""),
+    season: Number(next?.season_number || 0),
+    episode: Number(next?.episode_number || 0),
+    episodeTitle: String(next?.name || ""),
+    airDate,
+    poster: details?.poster_path ? `https://image.tmdb.org/t/p/w342${details.poster_path}` : ""
+  };
+}
+
+async function simklEntries(today) {
+  await SimklSyncService.refresh().catch(() => false);
+  const snapshot = SimklSyncService.getSnapshot(ProfileManager.getActiveProfileId?.());
+  const seen = new Set();
+  const shows = (snapshot?.entries || [])
+    .filter(
+      (entry) =>
+        (entry?.mediaType === "shows" || entry?.mediaType === "anime") &&
+        String(entry?.status || "").toLowerCase() === "watching"
+    )
+    .map((entry) => entry.show || entry.anime || null)
+    .filter((show) => {
+      const key = String(show?.ids?.simkl || show?.ids?.tmdb || show?.ids?.imdb || "");
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, SIMKL_MAX_SHOWS);
+  const limit = new Date(today.getTime() + CALENDAR_DAYS * 86400000);
+  const results = [];
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < shows.length) {
+      const show = shows[cursor];
+      cursor += 1;
+      const entry = await simklShowEntry(show, today, limit).catch(() => null);
+      if (entry) results.push(entry);
+    }
+  };
+  await Promise.all(Array.from({ length: SIMKL_CONCURRENCY }, worker));
+  return results;
 }
 
 function nuvioEntries(today) {
@@ -112,16 +190,22 @@ async function buildCalendar() {
   const today = startOfDay(new Date());
   let source = "nuvio";
   let entries = [];
+  let loaded = false;
   if (TraktAuthService.isAuthenticated()) {
     try {
       entries = await traktEntries(today);
       source = "trakt";
-    } catch (_) {
-      entries = nuvioEntries(today);
-    }
-  } else {
-    entries = nuvioEntries(today);
+      loaded = true;
+    } catch (_) {}
   }
+  if (!loaded && SimklAuthService.isAuthenticated()) {
+    try {
+      entries = await simklEntries(today);
+      source = "simkl";
+      loaded = true;
+    } catch (_) {}
+  }
+  if (!loaded) entries = nuvioEntries(today);
   entries = entries
     .filter((entry) => !isHiddenTitle(entry.contentType, entry.contentId))
     .slice(0, MAX_ENTRIES);

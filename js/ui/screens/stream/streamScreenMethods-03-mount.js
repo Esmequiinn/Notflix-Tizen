@@ -82,12 +82,14 @@ export function createStreamScreenMethods03() {
       this.cancelAutoPlaySelectionWait();
       const autoPlayWaitSeconds = Math.max(0, Math.trunc(Number(playerSettings.streamAutoPlayTimeoutSeconds || 0)));
       this.autoPlaySelectionReady = autoPlayWaitSeconds === 0;
+      this.autoPlayWaitsForAll = autoPlayWaitSeconds === 2147483647;
+      this.autoPlayLoadComplete = false;
       if (autoPlayWaitSeconds > 0 && autoPlayWaitSeconds !== 2147483647) {
         this.autoPlaySelectionWaitTimer = setTimeout(() => {
           this.autoPlaySelectionWaitTimer = null;
           this.autoPlaySelectionReady = true;
           this.maybeAutoResumeStream();
-          this.maybeAutoPlayStream();
+          this.maybeAutoPlayStream({ allLoaded: Boolean(this.autoPlayLoadComplete) });
         }, autoPlayWaitSeconds * 1000);
       }
       this.webOsNativePlayerAppId = "";

@@ -127,7 +127,10 @@ export function createStreamScreenMethods05() {
       const preferredBingeGroup = String(savedPreference?.bingeGroup || "").trim();
       const autoPlayMode = String(settings.streamAutoPlayMode || "MANUAL").toUpperCase();
       if ((autoPlayMode === "MANUAL" && !preferredBingeGroup) || !isAutoPlayEffectivelyEnabled(settings)) return;
-      if (!allLoaded && !this.autoPlaySelectionReady && !preferredBingeGroup) return;
+      if (!this.autoPlaySelectionReady && !preferredBingeGroup && !(allLoaded && this.autoPlayWaitsForAll)) {
+        if (allLoaded) this.autoPlayLoadComplete = true;
+        return;
+      }
       const installedAddonNames = new Set(
         (addonRepository.getCachedInstalledAddons() || [])
           .map((addon) => String(addon?.displayName || addon?.name || "").trim())
