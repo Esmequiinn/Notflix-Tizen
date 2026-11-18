@@ -2,7 +2,7 @@
 
 A Netflix-style interface for [Nuvio TV](https://github.com/NuvioMedia/NuvioTVSmart) on Samsung Smart TVs.
 
-**Version 0.0.2**
+**Version 0.0.3**
 
 ## Compatibility
 
@@ -28,7 +28,7 @@ The package keeps the official Nuvio TV app id, so it installs over an existing 
 
 ## Updates
 
-The app checks this repository's releases instead of the official Nuvio releases. When a newer release is published (for example `v0.0.2`), the TV shows an update notice. Updates are installed manually with the Nuvio TV Installer.
+The app checks this repository's releases instead of the official Nuvio releases. When a newer release is published (for example `v0.0.3`), the TV shows an update notice. Updates are installed manually with the Nuvio TV Installer.
 
 ## Build from source
 
