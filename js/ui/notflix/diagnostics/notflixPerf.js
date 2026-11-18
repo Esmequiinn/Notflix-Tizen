@@ -387,6 +387,7 @@ function reportMarkup() {
         <div>
           <h3>Congelones más largos</h3>
           <ol>${freezeRows || "<li>Ninguno</li>"}</ol>
+          ${lastHangText ? `<p class="nf-perf-service">Último congelamiento: ${escapeText(lastHangText)}</p>` : ""}
           <p class="nf-perf-service">Inicio se redibuja por: ${escapeText(callerSummary("Inicio.render", "Inicio.requestRender", "Inicio.requestBackgroundRender"))}</p>
           <h3>Errores al reproducir</h3>
           <p class="nf-perf-service">Servicio de reproducción: ${escapeText(state.serviceNote || "sin iniciar")}</p>
@@ -473,9 +474,65 @@ export function recordPlaybackError(message, candidate) {
 
 let listenersReady = false;
 
+const HANG_KEY = "nfPerfHang";
+const HANG_LAST_KEY = "nfPerfLastHang";
+const FREQUENT_AVPLAY_CALLS = new Set(["getCurrentTime", "getDuration", "getState"]);
+let lastHangText = "";
+let avplayWatched = false;
+
+function readLastHang() {
+  try {
+    const pending = localStorage.getItem(HANG_KEY);
+    if (pending) {
+      localStorage.setItem(HANG_LAST_KEY, pending);
+      localStorage.removeItem(HANG_KEY);
+    }
+    lastHangText = String(localStorage.getItem(HANG_LAST_KEY) || "");
+  } catch (_) {}
+}
+
+function watchAvPlayCalls() {
+  if (avplayWatched) return;
+  const avplay = globalThis.webapis?.avplay;
+  if (!avplay) return;
+  avplayWatched = true;
+  Object.keys(Object.getPrototypeOf(avplay) || {})
+    .concat(Object.keys(avplay))
+    .forEach((name) => {
+      const original = avplay[name];
+      if (
+        typeof original !== "function" ||
+        FREQUENT_AVPLAY_CALLS.has(name) ||
+        original.nfHangWrapped
+      )
+        return;
+      const wrapped = function (...args) {
+        if (!state.enabled) return original.apply(avplay, args);
+        const time = new Date();
+        const stamp = `${String(time.getHours()).padStart(2, "0")}:${String(time.getMinutes()).padStart(2, "0")}`;
+        try {
+          localStorage.setItem(HANG_KEY, `avplay.${name} · ${stamp} · ${routeName()}`);
+        } catch (_) {}
+        try {
+          return original.apply(avplay, args);
+        } finally {
+          try {
+            localStorage.removeItem(HANG_KEY);
+          } catch (_) {}
+        }
+      };
+      wrapped.nfHangWrapped = true;
+      try {
+        avplay[name] = wrapped;
+      } catch (_) {}
+    });
+}
+
 export function startPerfMonitor() {
   if (state.enabled) return;
   state.enabled = true;
+  readLastHang();
+  watchAvPlayCalls();
   resetPerfData();
   if (!listenersReady) {
     listenersReady = true;

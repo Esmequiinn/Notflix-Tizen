@@ -10,6 +10,7 @@ import { withNotflixProfiles } from "./profiles/notflixProfiles.js";
 import { PlayerScreen } from "../screens/player/playerScreen.js";
 import { withNotflixPlayer } from "./playback/notflixPlayerFallback.js";
 import { withNotflixPlayerUi } from "./playback/notflixPlayerUi.js";
+import { withNotflixTsTimeline } from "./playback/notflixTsTimeline.js";
 import { CalendarScreen } from "./calendar/calendarScreen.js";
 import { LibraryScreen } from "../screens/library/libraryScreen.js";
 import { withNotflixLibrary } from "./library/notflixMyList.js";
@@ -42,6 +43,7 @@ export function installNotflix() {
   patch(ProfileSelectionScreen, withNotflixProfiles);
   patch(PlayerScreen, withNotflixPlayer);
   patch(PlayerScreen, withNotflixPlayerUi);
+  patch(PlayerScreen, withNotflixTsTimeline);
   patch(LibraryScreen, withNotflixLibrary);
   SearchScreen.nfTitleVisible = (type, id) => !isNotflixActive() || isNotflixTitleVisible(type, id);
   try {

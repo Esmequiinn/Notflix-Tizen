@@ -378,6 +378,7 @@ export function createPlayerScreenMethods29() {
     },
     resetLivePlaybackState() {
       this.livePlaybackLatched = false;
+      this.avplayLiveProbeKey = null;
       this.liveDurationGrowth = new LiveDurationGrowth();
     },
     isSeekBarAvailable() {

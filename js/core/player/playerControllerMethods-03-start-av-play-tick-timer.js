@@ -1,6 +1,9 @@
 import * as internals from "./playerController.js";
 
 const AVPLAY_TIMELINE_POLL_REUSE_MS = 40;
+const AVPLAY_DURATION_POLL_MS = 1000;
+const AVPLAY_TRACK_POLL_EVERY_TICKS = 20;
+const AVPLAY_TRACK_POLL_MAX_TICKS = 300;
 
 export function createPlayerControllerMethods03() {
   const { logTizenAvPlayDebug } = internals;
@@ -14,7 +17,9 @@ export function createPlayerControllerMethods03() {
         }
         this.refreshAvPlayTimeline();
         trackPollTicks += 1;
-        if ((trackPollTicks <= 15 || trackPollTicks % 5 === 0) && ["PLAYING", "PAUSED"].includes(this.getAvPlayState())) {
+        const trackPollDue =
+          trackPollTicks <= 15 || (trackPollTicks <= AVPLAY_TRACK_POLL_MAX_TICKS && trackPollTicks % AVPLAY_TRACK_POLL_EVERY_TICKS === 0);
+        if (trackPollDue && ["PLAYING", "PAUSED"].includes(this.getAvPlayState())) {
           const fingerprint = () =>
             JSON.stringify([
               this.avplayAudioTracks,
@@ -206,6 +211,13 @@ export function createPlayerControllerMethods03() {
           this.avplayCurrentTimeMs = currentMs;
         }
       } catch (_) {}
+      if (Number(this.avplayDurationMs || 0) > 0 && now - Number(this.avplayDurationPolledAt || 0) < AVPLAY_DURATION_POLL_MS) {
+        return;
+      }
+      if (!(Number(this.avplayDurationMs || 0) > 0) && now - Number(this.avplayDurationPolledAt || 0) < AVPLAY_DURATION_POLL_MS * 3) {
+        return;
+      }
+      this.avplayDurationPolledAt = now;
       try {
         const durationMs = Number(avplay.getDuration?.() || 0);
         if (Number.isFinite(durationMs) && durationMs >= 0) {

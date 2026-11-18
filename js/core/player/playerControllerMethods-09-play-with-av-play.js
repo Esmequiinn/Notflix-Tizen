@@ -27,6 +27,7 @@ export function createPlayerControllerMethods09() {
       this.avplayCurrentTimeMs = 0;
       this.avplayTimelinePolledAt = 0;
       this.avplayDurationMs = 0;
+      this.avplayDurationPolledAt = 0;
       this.avplaySubtitleDiagnosticCallbackPendingAt = 0;
       this.lastPlaybackErrorCode = 0;
       this.playbackEngine = this.getPlatformAvplayEngineName();
@@ -275,7 +276,8 @@ export function createPlayerControllerMethods09() {
       if (Number.isFinite(durationSeconds) && durationSeconds > Number(this.lastKnownDurationSeconds || 0)) {
         this.lastKnownDurationSeconds = durationSeconds;
       }
-      return Math.max(0, Number(this.lastKnownDurationSeconds || 0));
+      const known = Math.max(0, Number(this.lastKnownDurationSeconds || 0));
+      return known > 0 ? known : Math.max(0, Number(this.durationFallbackSeconds || 0));
     },
     getBufferedTimeSeconds() {
       if (this.isUsingAvPlay()) {

@@ -162,6 +162,9 @@ function handleNavigation(screen, keyCode) {
     return true;
   }
   if (index === play) {
+    if (keyCode === 38 && (screen.focusSkipIntroButton?.() || screen.focusNextEpisodeCard?.())) {
+      return true;
+    }
     if (keyCode === 39) {
       if (screen.isSeekBarAvailable?.()) {
         screen.nfRowFocus = "progress";
@@ -203,6 +206,23 @@ function handleNavigation(screen, keyCode) {
     }
   }
   return false;
+}
+
+function focusNewSkipInterval(screen) {
+  const interval = screen.activeSkipInterval;
+  const button = screen.uiRefs?.skipIntro;
+  if (!interval || !button || button.classList.contains("hidden")) return;
+  const key = `${interval.type}:${interval.startTime}:${interval.endTime}`;
+  if (screen.nfSkipFocusedKey === key) return;
+  if (
+    screen.pauseOverlayVisible ||
+    screen.sourcesPanelVisible ||
+    screen.episodePanelVisible ||
+    screen.isDialogOpen?.() ||
+    screen.controlFocusZone === "nextEpisode"
+  )
+    return;
+  if (screen.focusSkipIntroButton?.()) screen.nfSkipFocusedKey = key;
 }
 
 function canNavigate(screen) {
@@ -779,6 +799,7 @@ export function withNotflixPlayerUi(base) {
     },
     renderSkipIntroButton(...args) {
       const result = base.renderSkipIntroButton.apply(this, args);
+      if (active(this)) focusNewSkipInterval(this);
       if (
         active(this) &&
         this.activeSkipInterval &&

@@ -134,6 +134,7 @@ export function createPlayerControllerMethods08() {
       this.avplayEnded = false;
       this.avplayCurrentTimeMs = 0;
       this.avplayDurationMs = 0;
+      this.avplayDurationPolledAt = 0;
       this.avplayBufferingProgress = null;
       this.avplayBufferingStartedAt = 0;
       this.avplayLastBufferingDurationMs = 0;

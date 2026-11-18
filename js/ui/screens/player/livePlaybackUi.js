@@ -36,11 +36,13 @@ export function isLivePlayback(screen, controller) {
     const reportsLive =
       hls?.latestLevelDetails?.live === true || controller.dashInstance?.isDynamic?.() === true || controller.video?.duration === Infinity;
     if (reportsLive) return (screen.livePlaybackLatched = true);
-    const avplayLive =
-      controller.isUsingAvPlay?.() &&
-      controller.avplayReady &&
-      !controller.avplaySeekInFlight &&
-      controller.getAvPlay?.()?.getStreamingProperty?.("IS_LIVE");
+    if (!controller.isUsingAvPlay?.() || !controller.avplayReady || controller.avplaySeekInFlight) {
+      return Boolean(screen.livePlaybackLatched);
+    }
+    const probeKey = String(controller.currentPlaybackUrl || "");
+    if (screen.avplayLiveProbeKey === probeKey) return Boolean(screen.livePlaybackLatched);
+    screen.avplayLiveProbeKey = probeKey;
+    const avplayLive = controller.getAvPlay?.()?.getStreamingProperty?.("IS_LIVE");
     screen.livePlaybackLatched = avplayLive === "1" || String(avplayLive).toLowerCase() === "true";
   } catch (_) {}
   return Boolean(screen.livePlaybackLatched);
